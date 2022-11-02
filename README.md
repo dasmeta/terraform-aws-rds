@@ -17,7 +17,7 @@ module "rds" {
     identifier           = "db"
     db_name              = "db"
     db_username          = "root"
-    db_password          = "foobarbazdocs.query.me"
+    db_password          = "some-password"
     parameter_group_name = "default.mysql5.7"
     vpc_id               = "${data.aws_vpc.main.id}"
     subnet_ids           = ["subnet-04ad8ad2fdec889ec","subnet-0ea0a01c1bea0a0c9"]
@@ -55,7 +55,7 @@ module "rds" {
     identifier           = "db"
     db_name              = "db"
     db_username          = "root"
-    db_password          = "foobarbazdocs.query.me"
+    db_password          = "some-password"
     parameter_group_name = "default.mysql5.7"
 
     vpc_id                 = "vpc-04c3b2abe39cd8a6a"
