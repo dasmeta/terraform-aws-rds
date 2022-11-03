@@ -4,7 +4,7 @@ locals {
 
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   depends_on = [
     module.security_group
@@ -23,7 +23,7 @@ module "db" {
   allocated_storage     = var.allocated_storage
   max_allocated_storage = var.max_allocated_storage
 
-  name     = var.db_name
+  db_name  = var.db_name
   username = var.db_username
   password = var.db_password
   port     = var.port
@@ -48,6 +48,7 @@ module "db" {
 
   parameters = var.parameters
 
+  create_random_password    = var.create_random_password
   create_db_parameter_group = var.create_db_parameter_group
   create_db_option_group    = var.create_db_option_group
   create_db_subnet_group    = var.create_db_subnet_group
