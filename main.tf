@@ -42,9 +42,11 @@ module "db" {
   skip_final_snapshot     = var.skip_final_snapshot
   deletion_protection     = var.deletion_protection
 
-  create_monitoring_role = var.create_monitoring_role
-  monitoring_interval    = var.monitoring_interval
-  monitoring_role_name   = var.monitoring_role_name
+  create_monitoring_role                 = var.create_monitoring_role
+  monitoring_interval                    = var.monitoring_interval
+  monitoring_role_name                   = var.monitoring_role_name
+  create_cloudwatch_log_group            = var.create_cloudwatch_log_group
+  cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
 
   parameters = var.parameters
 

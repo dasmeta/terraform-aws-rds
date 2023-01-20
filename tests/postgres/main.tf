@@ -1,16 +1,21 @@
 module "rds" {
-  source = "dasmeta/rds/aws"
+  source = "../.."
 
   engine         = "postgres"
   engine_version = "12"
-  identifier     = "db-demo"
-  db_name        = "dev-data"
-  db_username    = "user-terraform"
+  identifier     = "dbdemo"
+  db_name        = "devdata"
+  db_username    = "userTerraform"
   db_password    = "password-terraform"
 
   parameter_group_name = "rds-pg-12"
-  vpc_id               = "vpc-122123fsf41414"
-  subnet_ids           = ["subnet-231dadsa344ds", "subnet-231dqweqsa344ds", "subnet-241dadsa344ds"]
+  vpc_id               = "vpc-046effd7e14742653"
+  subnet_ids           = ["subnet-08b19374efcede225", "subnet-01fd8508db302e82c", "subnet-0af7c75104c35cbde"]
+
+  apply_immediately                      = true
+  cloudwatch_log_group_retention_in_days = 90
+  create_cloudwatch_log_group            = true
+  enabled_cloudwatch_logs_exports        = ["postgresql"]
 
   create_security_group = false
 }
