@@ -152,7 +152,7 @@ variable "enabled_cloudwatch_logs_exports" {
 
 variable "backup_retention_period" {
   type        = number
-  default     = 90
+  default     = 35
   description = "The days to retain backups for"
 }
 
@@ -275,12 +275,6 @@ variable "create_db_subnet_group" {
   type        = bool
   default     = true
   description = "Whether to create a database subnet group"
-}
-
-variable "create_random_password" {
-  type        = bool
-  default     = false
-  description = "Whether to create random password for RDS primary cluster"
 }
 
 variable "db_subnet_group_name" {
