@@ -4,7 +4,7 @@ locals {
 
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "~> 4.0"
+  version = "~> 6.1"
 
   depends_on = [
     module.security_group
@@ -50,7 +50,6 @@ module "db" {
 
   parameters = var.parameters
 
-  create_random_password    = var.create_random_password
   create_db_parameter_group = var.create_db_parameter_group
   create_db_option_group    = var.create_db_option_group
   create_db_subnet_group    = var.create_db_subnet_group
