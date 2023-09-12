@@ -50,6 +50,7 @@ module "db" {
 
   parameters = var.parameters
 
+
   create_db_parameter_group = var.create_db_parameter_group
   create_db_option_group    = var.create_db_option_group
   create_db_subnet_group    = var.create_db_subnet_group
