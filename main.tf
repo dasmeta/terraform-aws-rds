@@ -59,8 +59,9 @@ module "db" {
   options = var.options
   tags    = var.tags
 
-  db_instance_tags        = var.db_instance_tags
-  db_option_group_tags    = var.db_option_group_tags
-  db_parameter_group_tags = var.db_parameter_group_tags
-  db_subnet_group_tags    = var.db_subnet_group_tags
+  db_instance_tags            = var.db_instance_tags
+  db_option_group_tags        = var.db_option_group_tags
+  db_parameter_group_tags     = var.db_parameter_group_tags
+  db_subnet_group_tags        = var.db_subnet_group_tags
+  manage_master_user_password = var.manage_master_user_password
 }

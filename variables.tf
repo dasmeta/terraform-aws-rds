@@ -289,6 +289,12 @@ variable "create_cloudwatch_log_group" {
   description = "Determines whether a CloudWatch log group is created for each enabled_cloudwatch_logs_exports"
 }
 
+variable "manage_master_user_password" {
+  description = "Set to true to allow RDS to manage the master user password in Secrets Manager"
+  type        = bool
+  default     = false
+}
+
 variable "cloudwatch_log_group_retention_in_days" {
   type        = number
   default     = 30
