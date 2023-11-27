@@ -1,7 +1,6 @@
 module "rds" {
   source = "../.."
 
-  sns_topic      = "Default_CloudWatch_Alarms_Topic"
   engine         = "postgres"
   engine_version = "12"
   identifier     = "dbdemo"

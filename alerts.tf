@@ -17,8 +17,9 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      statistic = "avg"
-      threshold = "90"
+      statistic = try(var.alarms.cpu.statistic, "avg")
+      threshold = try(var.alarms.cpu.threshold, "90") # percent
+      period    = try(var.alarms.cpu.period, "300")
     },
     {
       name   = "RDS ${var.identifier} BurstBalance"
@@ -26,10 +27,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "1800"
-      threshold = "10" # percent
-      equation  = "lt"
-      statistic = "avg"
+      period    = try(var.alarms.burstbalance.period, "1800")
+      threshold = try(var.alarms.burstbalance.threshold, "10") # percent
+      equation  = try(var.alarms.burstbalance.equation, "lt")
+      statistic = try(var.alarms.burstbalance.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} CPUCreditBalance"
@@ -37,10 +38,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "1800"
-      threshold = "10" # percent
-      equation  = "lt"
-      statistic = "avg"
+      period    = try(var.alarms.cpu.creditbalance.period, "1800")
+      threshold = try(var.alarms.cpu.creditbalance.threshold, "10") # percent
+      equation  = try(var.alarms.cpu.creditbalance.equation, "lt")
+      statistic = try(var.alarms.cpu.creditbalance.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} EBSByteBalance%"
@@ -48,21 +49,21 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "1800"
-      threshold = "10" # percent
-      equation  = "lt"
-      statistic = "avg"
+      period    = try(var.alarms.ebs.bytebalance.period, "1800")
+      threshold = try(var.alarms.ebs.bytebalance.threshold, "10") # percent
+      equation  = try(var.alarms.ebs.bytebalance.equation, "lt")
+      statistic = try(var.alarms.ebs.bytebalance.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} EEBSIOBalance%"
+      name   = "RDS ${var.identifier} EBSIOBalance%"
       source = "AWS/RDS/EBSIOBalance%"
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "1800"
-      threshold = "10" # percent
-      equation  = "lt"
-      statistic = "avg"
+      period    = try(var.alarms.ebs.IObalance.period, "1800")
+      threshold = try(var.alarms.ebs.IObalance.threshold, "10") # percent
+      equation  = try(var.alarms.ebs.IObalance.equation, "lt")
+      statistic = try(var.alarms.ebs.IObalance.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} FreeableMemory"
@@ -70,10 +71,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "1800"
-      threshold = data.aws_ec2_instance_type.this.memory_size * 0.2 * 1024 * 1024 # bytes
-      equation  = "lt"
-      statistic = "avg"
+      period    = try(var.alarms.memory.period, "1800")
+      threshold = try(var.alarms.memory.threshold, data.aws_ec2_instance_type.this.memory_size * 0.2 * 1024 * 1024)
+      equation  = try(var.alarms.memory.equation, "lt")
+      statistic = try(var.alarms.memory.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} ReadLatency"
@@ -81,10 +82,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "60"
-      threshold = "1"
-      equation  = "gte"
-      statistic = "avg"
+      period    = try(var.alarms.network.read.period, "60")
+      threshold = try(var.alarms.network.read.threshold, "1")
+      equation  = try(var.alarms.network.read.equation, "gte")
+      statistic = try(var.alarms.network.read.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} WriteLatency"
@@ -92,10 +93,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = "60"
-      threshold = "1"
-      equation  = "gte"
-      statistic = "avg"
+      period    = try(var.alarms.network.write.period, "60")
+      threshold = try(var.alarms.network.write.threshold, "1")
+      equation  = try(var.alarms.network.write.equation, "gte")
+      statistic = try(var.alarms.network.write.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} DatabaseConnections"
@@ -103,10 +104,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period = "60"
       # considering https://aws.amazon.com/premiumsupport/knowledge-center/rds-mysql-max-connections/; expecting that only 80% of memory is used for PostgreSQL; warn at 80% connection usage
-      threshold = min(ceil(data.aws_ec2_instance_type.this.memory_size * 0.8 * 0.8 * 1024 * 1024 / 9531392), 5000) # count
-      statistic = "avg"
+      period    = try(var.alarms.connections.period, "60")
+      threshold = try(var.alarms.connections.threshold, min(ceil(data.aws_ec2_instance_type.this.memory_size * 0.8 * 0.8 * 1024 * 1024 / 9531392), 5000))
+      statistic = try(var.alarms.connections.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} diskUsedPercent"
@@ -114,8 +115,9 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      threshold = "90"
-      statistic = "avg"
+      period    = try(var.alarms.disk.period, "300")
+      threshold = try(var.alarms.disk.threshold, "90")
+      statistic = try(var.alarms.disk.statistic, "avg")
     },
   ]
 

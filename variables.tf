@@ -14,6 +14,12 @@ variable "sns_topic" {
   default     = null
 }
 
+variable "alarms" {
+  type        = any
+  description = "Alerts value"
+  default     = {}
+}
+
 
 variable "security_group_description" {
   type    = string
