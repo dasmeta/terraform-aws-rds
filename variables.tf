@@ -8,6 +8,13 @@ variable "security_group_name" {
   default = "db_security_group"
 }
 
+variable "sns_topic" {
+  type        = string
+  description = "Sns topic name"
+  default     = null
+}
+
+
 variable "security_group_description" {
   type    = string
   default = "MySQL security group"
@@ -176,7 +183,7 @@ variable "create_monitoring_role" {
 
 variable "monitoring_interval" {
   type        = number
-  default     = 0
+  default     = 60
   description = "The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance. To disable collecting Enhanced Monitoring metrics, specify 0. The default is 0. Valid Values: 0, 1, 5, 10, 15, 30, 60"
 }
 
