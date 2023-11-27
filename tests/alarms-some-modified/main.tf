@@ -23,7 +23,7 @@ module "rds" {
     sns_topic = "default"
 
     # If you want overwrite existing values
-    alarms-with-custom-values = {
+    custom-values = {
       cpu = {
         statistic = "avg"
         threshold = "90"
