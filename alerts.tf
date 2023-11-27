@@ -22,39 +22,6 @@ module "cw_alerts" {
       period    = try(var.alarms.custom-values.cpu.period, "300")
     },
     {
-      name   = "RDS ${var.identifier} BurstBalance"
-      source = "AWS/RDS/BurstBalance"
-      filters = {
-        DBInstanceIdentifier = var.identifier
-      }
-      period    = try(var.alarms.custom-values.burstbalance.period, "1800")
-      threshold = try(var.alarms.custom-values.burstbalance.threshold, "10") # percent
-      equation  = try(var.alarms.custom-values.burstbalance.equation, "lt")
-      statistic = try(var.alarms.custom-values.burstbalance.statistic, "avg")
-    },
-    {
-      name   = "RDS ${var.identifier} CPUCreditBalance"
-      source = "AWS/RDS/CPUCreditBalance"
-      filters = {
-        DBInstanceIdentifier = var.identifier
-      }
-      period    = try(var.alarms.custom-values.cpu.creditbalance.period, "1800")
-      threshold = try(var.alarms.custom-values.cpu.creditbalance.threshold, "10") # percent
-      equation  = try(var.alarms.custom-values.cpu.creditbalance.equation, "lt")
-      statistic = try(var.alarms.custom-values.cpu.creditbalance.statistic, "avg")
-    },
-    {
-      name   = "RDS ${var.identifier} EBSByteBalance%"
-      source = "AWS/RDS/EBSByteBalance%"
-      filters = {
-        DBInstanceIdentifier = var.identifier
-      }
-      period    = try(var.alarms.custom-values.ebs.bytebalance.period, "1800")
-      threshold = try(var.alarms.custom-values.ebs.bytebalance.threshold, "10") # percent
-      equation  = try(var.alarms.custom-values.ebs.bytebalance.equation, "lt")
-      statistic = try(var.alarms.custom-values.ebs.bytebalance.statistic, "avg")
-    },
-    {
       name   = "RDS ${var.identifier} EBSIOBalance%"
       source = "AWS/RDS/EBSIOBalance%"
       filters = {

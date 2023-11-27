@@ -179,7 +179,7 @@ variable "deletion_protection" {
 
 variable "create_monitoring_role" {
   type        = bool
-  default     = false
+  default     = true
   description = "Create IAM role with a defined name that permits RDS to send enhanced monitoring metrics to CloudWatch Logs"
 }
 
