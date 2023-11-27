@@ -16,7 +16,7 @@ variable "sns_topic" {
 
 variable "alarms" {
   type        = any
-  description = "Alerts value"
+  description = "Alarms values if you want overwrite existing values"
   default     = {}
 }
 
