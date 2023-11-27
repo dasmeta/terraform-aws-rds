@@ -8,17 +8,25 @@ variable "security_group_name" {
   default = "db_security_group"
 }
 
-variable "sns_topic" {
-  type        = string
-  description = "Sns topic name"
-  default     = null
-}
+# variable "sns_topic" {
+#   type        = string
+#   description = "Sns topic name"
+#   default     = null
+# }
 
 variable "alarms" {
-  type        = any
-  description = "Alarms values if you want overwrite existing values"
-  default     = {}
+  type = object({
+    enabled                   = optional(bool, true)
+    sns_topic                 = string
+    alarms-with-custom-values = optional(any, {})
+  })
 }
+
+# variable "alarms-with-custom-values" {
+#   type        = any
+#   description = "Alarms values if you want overwrite existing values"
+#   default     = {}
+# }
 
 
 variable "security_group_description" {

@@ -18,4 +18,8 @@ module "rds" {
   enabled_cloudwatch_logs_exports        = ["postgresql"]
 
   create_security_group = false
+
+  alarms = {
+    sns_topic = "Default"
+  }
 }
