@@ -2,6 +2,14 @@ data "aws_ec2_instance_type" "this" {
   instance_type = trim(var.instance_class, "db.")
 }
 
+data "aws_db_instance" "database" {
+  db_instance_identifier = var.identifier
+
+  depends_on = [
+    module.db
+  ]
+}
+
 module "cw_alerts" {
   count = var.alarms.enabled ? 1 : 0
 
@@ -77,39 +85,17 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom-values.connections.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} diskUsedPercent"
-      source = "RDS/diskUsedPercent"
+      name   = "RDS ${var.identifier} FreeStorageSpace"
+      source = "AWS/RDS/FreeStorageSpace"
       filters = {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom-values.disk.period, "300")
-      threshold = try(var.alarms.custom-values.disk.threshold, "90")
+      threshold = try(var.alarms.custom-values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.2)
+      equation  = try(var.alarms.custom-values.ebs.IObalance.equation, "lt")
       statistic = try(var.alarms.custom-values.disk.statistic, "avg")
     },
   ]
-
-  depends_on = [
-    module.db,
-    aws_cloudwatch_log_metric_filter.rds_disk_metric
-  ]
-}
-
-resource "aws_cloudwatch_log_metric_filter" "rds_disk_metric" {
-  count = var.alarms.enabled ? 1 : 0
-
-  name           = "filter-${var.identifier}-disk"
-  pattern        = "{$.instanceID = \"${var.identifier}\" && $.fileSys[0].mountPoint = \"/rdsdbdata\"}"
-  log_group_name = "RDSOSMetrics"
-
-  metric_transformation {
-    name      = "diskUsedPercent"
-    namespace = "RDS"
-    unit      = "Percent"
-    value     = "$.fileSys[0].usedPercent"
-    dimensions = {
-      DBInstanceIdentifier = "$.instanceID"
-    }
-  }
 
   depends_on = [
     module.db

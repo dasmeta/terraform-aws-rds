@@ -179,13 +179,13 @@ variable "deletion_protection" {
 
 variable "create_monitoring_role" {
   type        = bool
-  default     = true
+  default     = false
   description = "Create IAM role with a defined name that permits RDS to send enhanced monitoring metrics to CloudWatch Logs"
 }
 
 variable "monitoring_interval" {
   type        = number
-  default     = 60
+  default     = 0
   description = "The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance. To disable collecting Enhanced Monitoring metrics, specify 0. The default is 0. Valid Values: 0, 1, 5, 10, 15, 30, 60"
 }
 
