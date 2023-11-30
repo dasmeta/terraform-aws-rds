@@ -13,7 +13,7 @@ variable "alarms" {
   type = object({
     enabled       = optional(bool, true)
     sns_topic     = string
-    custom-values = optional(any, {})
+    custom_values = optional(any, {})
   })
 }
 

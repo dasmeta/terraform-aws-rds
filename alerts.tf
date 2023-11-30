@@ -25,9 +25,9 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      statistic = try(var.alarms.custom-values.cpu.statistic, "avg")
-      threshold = try(var.alarms.custom-values.cpu.threshold, "90") # percent
-      period    = try(var.alarms.custom-values.cpu.period, "300")
+      statistic = try(var.alarms.custom_values.cpu.statistic, "avg")
+      threshold = try(var.alarms.custom_values.cpu.threshold, "90") # percent
+      period    = try(var.alarms.custom_values.cpu.period, "300")
     },
     {
       name   = "RDS ${var.identifier} EBSIOBalance%"
@@ -35,10 +35,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = try(var.alarms.custom-values.ebs.IObalance.period, "1800")
-      threshold = try(var.alarms.custom-values.ebs.IObalance.threshold, "10") # percent
-      equation  = try(var.alarms.custom-values.ebs.IObalance.equation, "lt")
-      statistic = try(var.alarms.custom-values.ebs.IObalance.statistic, "avg")
+      period    = try(var.alarms.custom_values.ebs.IObalance.period, "1800")
+      threshold = try(var.alarms.custom_values.ebs.IObalance.threshold, "10") # percent
+      equation  = try(var.alarms.custom_values.ebs.IObalance.equation, "lt")
+      statistic = try(var.alarms.custom_values.ebs.IObalance.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} FreeableMemory"
@@ -46,10 +46,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = try(var.alarms.custom-values.memory.period, "1800")
-      threshold = try(var.alarms.custom-values.memory.threshold, data.aws_ec2_instance_type.this.memory_size * 0.2 * 1024 * 1024)
-      equation  = try(var.alarms.custom-values.memory.equation, "lt")
-      statistic = try(var.alarms.custom-values.memory.statistic, "avg")
+      period    = try(var.alarms.custom_values.memory.period, "1800")
+      threshold = try(var.alarms.custom_values.memory.threshold, data.aws_ec2_instance_type.this.memory_size * 0.2 * 1024 * 1024)
+      equation  = try(var.alarms.custom_values.memory.equation, "lt")
+      statistic = try(var.alarms.custom_values.memory.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} ReadLatency"
@@ -57,10 +57,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = try(var.alarms.custom-values.network.read.period, "60")
-      threshold = try(var.alarms.custom-values.network.read.threshold, "1")
-      equation  = try(var.alarms.custom-values.network.read.equation, "gte")
-      statistic = try(var.alarms.custom-values.network.read.statistic, "avg")
+      period    = try(var.alarms.custom_values.network.read.period, "60")
+      threshold = try(var.alarms.custom_values.network.read.threshold, "1")
+      equation  = try(var.alarms.custom_values.network.read.equation, "gte")
+      statistic = try(var.alarms.custom_values.network.read.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} WriteLatency"
@@ -68,10 +68,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = try(var.alarms.custom-values.network.write.period, "60")
-      threshold = try(var.alarms.custom-values.network.write.threshold, "1")
-      equation  = try(var.alarms.custom-values.network.write.equation, "gte")
-      statistic = try(var.alarms.custom-values.network.write.statistic, "avg")
+      period    = try(var.alarms.custom_values.network.write.period, "60")
+      threshold = try(var.alarms.custom_values.network.write.threshold, "1")
+      equation  = try(var.alarms.custom_values.network.write.equation, "gte")
+      statistic = try(var.alarms.custom_values.network.write.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} DatabaseConnections"
@@ -80,9 +80,9 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       # considering https://aws.amazon.com/premiumsupport/knowledge-center/rds-mysql-max-connections/; expecting that only 80% of memory is used for PostgreSQL; warn at 80% connection usage
-      period    = try(var.alarms.custom-values.connections.period, "60")
-      threshold = try(var.alarms.custom-values.connections.threshold, min(ceil(data.aws_ec2_instance_type.this.memory_size * 0.8 * 0.8 * 1024 * 1024 / 9531392), 5000))
-      statistic = try(var.alarms.custom-values.connections.statistic, "avg")
+      period    = try(var.alarms.custom_values.connections.period, "60")
+      threshold = try(var.alarms.custom_values.connections.threshold, min(ceil(data.aws_ec2_instance_type.this.memory_size * 0.8 * 0.8 * 1024 * 1024 / 9531392), 5000))
+      statistic = try(var.alarms.custom_values.connections.statistic, "avg")
     },
     {
       name   = "RDS ${var.identifier} FreeStorageSpace"
@@ -90,10 +90,10 @@ module "cw_alerts" {
       filters = {
         DBInstanceIdentifier = var.identifier
       }
-      period    = try(var.alarms.custom-values.disk.period, "300")
-      threshold = try(var.alarms.custom-values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.2)
-      equation  = try(var.alarms.custom-values.ebs.IObalance.equation, "lt")
-      statistic = try(var.alarms.custom-values.disk.statistic, "avg")
+      period    = try(var.alarms.custom_values.disk.period, "300")
+      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.2)
+      equation  = try(var.alarms.custom_values.ebs.IObalance.equation, "lt")
+      statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
   ]
 
