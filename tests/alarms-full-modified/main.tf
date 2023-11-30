@@ -92,6 +92,7 @@ module "rds" {
       disk = {
         period    = "300"
         threshold = "90"
+        equation  = "lt"
         statistic = "avg"
       }
     }

@@ -92,7 +92,7 @@ module "cw_alerts" {
       }
       period    = try(var.alarms.custom_values.disk.period, "300")
       threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.2)
-      equation  = try(var.alarms.custom_values.ebs.IObalance.equation, "lt")
+      equation  = try(var.alarms.custom_values.disk.equation, "lt")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
   ]
