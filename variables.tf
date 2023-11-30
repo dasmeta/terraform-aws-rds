@@ -8,6 +8,15 @@ variable "security_group_name" {
   default = "db_security_group"
 }
 
+
+variable "alarms" {
+  type = object({
+    enabled       = optional(bool, true)
+    sns_topic     = string
+    custom_values = optional(any, {})
+  })
+}
+
 variable "security_group_description" {
   type    = string
   default = "MySQL security group"
