@@ -61,6 +61,12 @@ variable "parameter_group_name" {
   description = "Name of the DB parameter group to associate or create"
 }
 
+variable "parameter_group_use_name_prefix" {
+  type        = bool
+  default     = false
+  description = "Determines whether to use parameter_group_name as is or create a unique name beginning with the parameter_group_name as the prefix"
+}
+
 variable "engine" {
   type        = string
   default     = "mysql"
@@ -71,12 +77,6 @@ variable "engine_version" {
   type        = string
   default     = "5.7.26"
   description = "The engine version to use"
-}
-
-variable "family" {
-  type        = string
-  default     = "mysql5.7"
-  description = "The family of the DB parameter group"
 }
 
 variable "major_engine_version" {
@@ -120,7 +120,7 @@ variable "db_password" {
 
 variable "port" {
   type        = number
-  default     = 3306
+  default     = null
   description = "The port on which the DB accepts connections"
 }
 
@@ -155,7 +155,7 @@ variable "backup_window" {
 
 variable "enabled_cloudwatch_logs_exports" {
   type        = list(string)
-  default     = ["general"]
+  default     = []
   description = "List of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported. Valid values (depending on engine): alert, audit, error, general, listener, slowquery, trace, postgresql (PostgreSQL), upgrade (PostgreSQL)"
 }
 
@@ -196,16 +196,8 @@ variable "monitoring_role_name" {
 }
 
 variable "parameters" {
-  type = list(map(any))
-  default = [{
-    name  = "character_set_client"
-    value = "utf8mb4"
-    }, {
-    name  = "character_set_server"
-    value = "utf8mb4"
-    }, {
-    max_connections = "500"
-  }]
+  type        = list(map(any))
+  default     = []
   description = "A list of DB parameters (map) to apply"
 }
 
@@ -308,4 +300,15 @@ variable "cloudwatch_log_group_retention_in_days" {
   type        = number
   default     = 30
   description = "The number of days to retain CloudWatch logs for the DB instance"
+}
+
+variable "slow_queries" {
+  type = object({
+    enabled        = optional(bool, true)
+    query_duration = optional(number, 3)
+  })
+  default = {
+    enabled        = true
+    query_duration = 3
+  }
 }
