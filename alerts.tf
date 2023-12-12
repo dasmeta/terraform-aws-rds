@@ -103,8 +103,8 @@ module "cw_alerts" {
         source  = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
         filters = {}
         period  = try(var.alarms.custom_values.slow-queries.period, "300")
-        // SampleCount statistic adds 2 to the real count, so 3 means 5 - 2
-        threshold = try(var.alarms.custom_values.slow-queries.threshold, 3)
+        // SampleCount statistic adds 2 to the real count, so 7 means 5 + 2
+        threshold = try(var.alarms.custom_values.slow-queries.threshold, 7)
         equation  = try(var.alarms.custom_values.slow-queries.equation, "gte")
         statistic = try(var.alarms.custom_values.slow-queries.statistic, "count")
       }
