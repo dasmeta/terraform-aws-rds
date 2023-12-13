@@ -18,7 +18,7 @@ module "cw_alerts" {
 
   sns_topic = var.alarms.sns_topic
 
-  alerts = [
+  alerts = concat([
     {
       name   = "RDS ${var.identifier} CPUUtilization"
       source = "AWS/RDS/CPUUtilization"
@@ -95,7 +95,21 @@ module "cw_alerts" {
       equation  = try(var.alarms.custom_values.disk.equation, "lt")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
-  ]
+    ],
+    // This will get into in alarm state in case there are 5 slow queries in 5 minutes
+    var.slow_queries.enabled ? [
+      {
+        name    = "RDS ${var.identifier} SlowQueries"
+        source  = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
+        filters = {}
+        period  = try(var.alarms.custom_values.slow-queries.period, "300")
+        // SampleCount statistic adds 2 to the real count, so 7 means 5 + 2
+        threshold = try(var.alarms.custom_values.slow-queries.threshold, 7)
+        equation  = try(var.alarms.custom_values.slow-queries.equation, "gte")
+        statistic = try(var.alarms.custom_values.slow-queries.statistic, "count")
+      }
+    ] : []
+  )
 
   depends_on = [
     module.db
