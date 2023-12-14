@@ -61,12 +61,6 @@ variable "parameter_group_name" {
   description = "Name of the DB parameter group to associate or create"
 }
 
-variable "parameter_group_use_name_prefix" {
-  type        = bool
-  default     = false
-  description = "Determines whether to use parameter_group_name as is or create a unique name beginning with the parameter_group_name as the prefix"
-}
-
 variable "engine" {
   type        = string
   default     = "mysql"
@@ -87,7 +81,7 @@ variable "major_engine_version" {
 
 variable "instance_class" {
   type        = string
-  default     = "db.t3.medium"
+  default     = "db.t3.micro"
   description = "The instance type of the RDS instance"
 }
 

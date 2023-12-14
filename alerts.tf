@@ -10,6 +10,11 @@ data "aws_db_instance" "database" {
   ]
 }
 
+locals {
+  // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
+  slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
+}
+
 module "cw_alerts" {
   count = var.alarms.enabled ? 1 : 0
 
@@ -99,12 +104,11 @@ module "cw_alerts" {
     // This will get into in alarm state in case there are 5 slow queries in 5 minutes
     var.slow_queries.enabled ? [
       {
-        name    = "RDS ${var.identifier} SlowQueries"
-        source  = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
-        filters = {}
-        period  = try(var.alarms.custom_values.slow-queries.period, "300")
-        // SampleCount statistic adds 2 to the real count, so 7 means 5 + 2
-        threshold = try(var.alarms.custom_values.slow-queries.threshold, 7)
+        name      = "RDS ${var.identifier} SlowQueries"
+        source    = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
+        filters   = {}
+        period    = try(var.alarms.custom_values.slow-queries.period, "300")
+        threshold = try(var.alarms.custom_values.slow-queries.threshold, local.slow_queries_alert_threshold)
         equation  = try(var.alarms.custom_values.slow-queries.equation, "gte")
         statistic = try(var.alarms.custom_values.slow-queries.statistic, "count")
       }

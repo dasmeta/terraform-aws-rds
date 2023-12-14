@@ -8,10 +8,14 @@ module "cloudwatch_metric_filters" {
   metrics_patterns = [
     {
       name    = "${var.identifier}-RDSSlowQueries"
-      pattern = "[day, time, log=\"*:LOG:\", containsDuration=\"duration:\", duration=*, unit, statement=\"statement:*\"]"
+      pattern = var.engine == "postgres" ? "[day, time, log=\"*:LOG:\", containsDuration=\"duration:\", duration=*, unit, statement=\"statement:*\"]" : "[start, time=\"Time:\", date, separatorOne, userHost, username, separatorTwo, ip, id, idNumber, separatorThree, queryTime, duration, ...]"
       value   = "$duration"
-      unit    = "Milliseconds"
+      unit    = var.engine == "postgres" ? "Milliseconds" : "Seconds"
     }
   ]
   metrics_namespace = "RDSLogBasedMetrics"
+
+  depends_on = [
+    module.db
+  ]
 }
