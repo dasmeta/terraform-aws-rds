@@ -2,11 +2,11 @@ locals {
   vpc_security_group_ids          = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
   enabled_cloudwatch_logs_exports = (var.engine == "mysql" && var.slow_queries.enabled) ? ["slowquery"] : (var.engine == "postgres" && var.slow_queries.enabled) ? ["postgresql"] : var.enabled_cloudwatch_logs_exports
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled
-  cloudwatch_log_groups     = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/instance/${var.identifier}/${type}" } : {}
-  create_db_parameter_group = var.slow_queries.enabled ? true : var.create_db_parameter_group
-  parameter_group_name      = local.create_db_parameter_group ? "${var.identifier}-${var.engine}-${var.engine_version}" : null
-  slow_queries_duration     = var.slow_queries.query_duration * 1000
-  port                      = var.engine == "mysql" ? 3306 : var.engine == "postgres" ? 5432 : var.port
+  cloudwatch_log_groups          = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/instance/${var.identifier}/${type}" } : {}
+  create_db_parameter_group      = var.slow_queries.enabled ? true : var.create_db_parameter_group
+  parameter_group_name           = local.create_db_parameter_group ? "${var.identifier}-${var.engine}" : null
+  postgres_slow_queries_duration = var.slow_queries.query_duration * 1000
+  port                           = var.engine == "mysql" ? 3306 : var.engine == "postgres" ? 5432 : var.port
   default_params_mysql = [
     {
       name  = "slow_query_log"
@@ -16,11 +16,15 @@ locals {
       name  = "log_output"
       value = "FILE"
     },
+    {
+      name  = "long_query_time"
+      value = var.slow_queries.query_duration
+    },
   ]
   default_params_postgres = [
     {
       name  = "log_min_duration_statement" //This setting causes PostgreSQL to log any query that takes longer than `local.slow_queries_duration` seconds to execute. It includes both the query text and its duration.
-      value = local.slow_queries_duration
+      value = local.postgres_slow_queries_duration
     },
     {
       name  = "log_statement" //This setting prevents the logging of every single SQL statement and logs those ones which correspond to parameter group's configuration.
@@ -96,7 +100,7 @@ module "db" {
   create_db_parameter_group       = local.create_db_parameter_group
   family                          = "${var.engine}${var.engine_version}"
   parameter_group_name            = local.parameter_group_name
-  parameter_group_use_name_prefix = var.parameter_group_use_name_prefix
+  parameter_group_use_name_prefix = false
   parameter_group_description     = "Custom parameter group for ${var.identifier}"
   parameters                      = local.combined_parameters
 
