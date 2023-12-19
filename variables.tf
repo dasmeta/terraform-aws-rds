@@ -97,6 +97,12 @@ variable "max_allocated_storage" {
   description = "Specifies the value for Storage Autoscaling"
 }
 
+variable "storage_encrypted" {
+  type        = bool
+  description = "Specifies whether the DB instance is encrypted"
+  default     = true
+}
+
 variable "db_name" {
   type        = string
   description = "The DB name to create. If omitted, no database is created initially"
