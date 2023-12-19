@@ -100,7 +100,7 @@ variable "max_allocated_storage" {
 variable "storage_encrypted" {
   type        = bool
   description = "Specifies whether the DB instance is encrypted"
-  default     = true
+  default     = false
 }
 
 variable "db_name" {
