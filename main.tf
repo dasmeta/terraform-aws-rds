@@ -99,7 +99,7 @@ module "db" {
 
   # DB parameter group configs
   create_db_parameter_group       = local.create_db_parameter_group
-  family                          = "${var.engine}${var.engine_version}"
+  family                          = var.engine == "postgres" ? "${var.engine}${split(".", var.engine_version)[0]}" : "${var.engine}${var.engine_version}"
   parameter_group_name            = local.parameter_group_name
   parameter_group_use_name_prefix = false
   parameter_group_description     = "Custom parameter group for ${var.identifier}"
