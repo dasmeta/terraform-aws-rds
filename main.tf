@@ -1,12 +1,12 @@
 locals {
   vpc_security_group_ids          = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
-  enabled_cloudwatch_logs_exports = (var.engine == "mysql" && var.slow_queries.enabled) ? ["slowquery"] : (var.engine == "postgres" && var.slow_queries.enabled) ? ["postgresql"] : var.enabled_cloudwatch_logs_exports
+  enabled_cloudwatch_logs_exports = ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? ["slowquery"] : (var.engine == "postgres" && var.slow_queries.enabled) ? ["postgresql"] : var.enabled_cloudwatch_logs_exports
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled
   cloudwatch_log_groups          = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/instance/${var.identifier}/${type}" } : {}
   create_db_parameter_group      = var.slow_queries.enabled ? true : var.create_db_parameter_group
   parameter_group_name           = local.create_db_parameter_group ? "${var.identifier}-${var.engine}" : null
   postgres_slow_queries_duration = var.slow_queries.query_duration * 1000
-  port                           = var.engine == "mysql" ? 3306 : var.engine == "postgres" ? 5432 : var.port
+  port                           = (var.engine == "mysql" || var.engine == "mariadb") ? 3306 : var.engine == "postgres" ? 5432 : var.port
   default_params_mysql = [
     {
       name  = "slow_query_log"
@@ -44,7 +44,7 @@ locals {
   user_params_map = { for p in var.parameters : p.name => p.value }
 
   # Merge the two maps, with user parameters overriding defaults
-  merged_params_map = (var.engine == "mysql" && var.slow_queries.enabled) ? merge(local.params_mysql, local.user_params_map) : (var.engine == "postgres" && var.slow_queries.enabled) ? merge(local.params_postgres, local.user_params_map) : {}
+  merged_params_map = ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? merge(local.params_mysql, local.user_params_map) : (var.engine == "postgres" && var.slow_queries.enabled) ? merge(local.params_postgres, local.user_params_map) : {}
 
   # Convert the merged map back to a list of maps
   combined_parameters = [for name, value in local.merged_params_map : { name = name, value = value }]
@@ -99,7 +99,7 @@ module "db" {
 
   # DB parameter group configs
   create_db_parameter_group       = local.create_db_parameter_group
-  family                          = "${var.engine}${var.engine_version}"
+  family                          = var.engine == "postgres" ? "${var.engine}${split(".", var.engine_version)[0]}" : "${var.engine}${var.engine_version}"
   parameter_group_name            = local.parameter_group_name
   parameter_group_use_name_prefix = false
   parameter_group_description     = "Custom parameter group for ${var.identifier}"
