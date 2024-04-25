@@ -25,7 +25,7 @@ module "cw_alerts" {
 
   alerts = concat([
     {
-      name   = "RDS ${var.identifier} CPUUtilization"
+      name   = "DB: High CPU Utilization Alert on Instance ${var.identifier}"
       source = "AWS/RDS/CPUUtilization"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -35,7 +35,7 @@ module "cw_alerts" {
       period    = try(var.alarms.custom_values.cpu.period, "300")
     },
     {
-      name   = "RDS ${var.identifier} EBSIOBalance%"
+      name   = "DB: Low EBS IO Balance Percentage on Instance ${var.identifier}"
       source = "AWS/RDS/EBSIOBalance%"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -46,7 +46,7 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom_values.ebs.IObalance.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} FreeableMemory"
+      name   = "DB: Low Freeable Memory Alert on Instance ${var.identifier}"
       source = "AWS/RDS/FreeableMemory"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -57,7 +57,7 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom_values.memory.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} ReadLatency"
+      name   = "DB: High Read Latency Detected on Instance ${var.identifier}"
       source = "AWS/RDS/ReadLatency"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -68,7 +68,7 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom_values.network.read.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} WriteLatency"
+      name   = "DB: High Write Latency Detected on Instance ${var.identifier}"
       source = "AWS/RDS/WriteLatency"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -79,7 +79,7 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom_values.network.write.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} DatabaseConnections"
+      name   = "DB: High Database Connection Usage on Instance ${var.identifier}"
       source = "AWS/RDS/DatabaseConnections"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -90,7 +90,7 @@ module "cw_alerts" {
       statistic = try(var.alarms.custom_values.connections.statistic, "avg")
     },
     {
-      name   = "RDS ${var.identifier} FreeStorageSpace"
+      name   = "DB: Low Free Storage Space on Instance ${var.identifier}"
       source = "AWS/RDS/FreeStorageSpace"
       filters = {
         DBInstanceIdentifier = var.identifier
@@ -104,7 +104,7 @@ module "cw_alerts" {
     // This will get into in alarm state in case there are 5 slow queries in 5 minutes
     var.slow_queries.enabled ? [
       {
-        name      = "RDS ${var.identifier} SlowQueries"
+        name      = "DB: Excessive Slow Queries on Instance ${var.identifier}"
         source    = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
         filters   = {}
         period    = try(var.alarms.custom_values.slow-queries.period, "300")
