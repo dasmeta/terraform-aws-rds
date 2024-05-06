@@ -52,7 +52,7 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom_values.memory.period, "1800")
-      threshold = try(var.alarms.custom_values.memory.threshold, data.aws_ec2_instance_type.this.memory_size * 0.2 * 1024 * 1024)
+      threshold = try(var.alarms.custom_values.memory.threshold, data.aws_ec2_instance_type.this.memory_size * 0.05 * 1024 * 1024)
       equation  = try(var.alarms.custom_values.memory.equation, "lt")
       statistic = try(var.alarms.custom_values.memory.statistic, "avg")
     },
@@ -96,8 +96,8 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom_values.disk.period, "300")
-      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.2)
-      equation  = try(var.alarms.custom_values.disk.equation, "lt")
+      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.1 * 1024 * 1024 * 1024) #10% of storage in Bytes
+      equation  = try(var.alarms.custom_values.disk.equation, "lte")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
     ],
