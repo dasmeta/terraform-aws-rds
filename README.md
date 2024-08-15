@@ -1,3 +1,7 @@
+# please enable git hooks by running the following command
+```sh
+git config --global core.hooksPath ./githooks # enables git hooks globally
+```
 # How to use
 
 Case 1. Create Security group and create RDS
