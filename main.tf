@@ -44,7 +44,11 @@ locals {
   user_params_map = { for p in var.parameters : p.name => p.value }
 
   # Merge the two maps, with user parameters overriding defaults
-  merged_params_map = ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? merge(local.params_mysql, local.user_params_map) : (var.engine == "postgres" && var.slow_queries.enabled) ? merge(local.params_postgres, local.user_params_map) : {}
+  merged_params_map = merge(
+    ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? local.params_mysql : {},
+    (var.engine == "postgres" && var.slow_queries.enabled) ? local.params_postgres : {},
+    local.user_params_map
+  )
 
   # Convert the merged map back to a list of maps
   combined_parameters = [for name, value in local.merged_params_map : { name = name, value = value }]
