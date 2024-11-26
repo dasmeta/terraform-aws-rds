@@ -96,7 +96,7 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom_values.disk.period, "300")
-      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.1 * 1024 * 1024 * 1024) #10% of storage in Bytes
+      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.08 * 1024 * 1024 * 1024) #8% of storage in Bytes
       equation  = try(var.alarms.custom_values.disk.equation, "lte")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
