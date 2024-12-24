@@ -105,7 +105,6 @@ module "db_aurora" {
 
   create_monitoring_role                 = var.create_monitoring_role
   monitoring_interval                    = var.monitoring_interval
-  monitoring_role_arn                    = var.monitoring_role_arn
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
 

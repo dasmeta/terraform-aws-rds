@@ -200,12 +200,6 @@ variable "monitoring_role_name" {
   description = "Name of the IAM role which will be created when create_monitoring_role is enabled"
 }
 
-variable "monitoring_role_arn" {
-  type        = string
-  default     = ""
-  description = "Arn of the IAM role which will be used to send monitoring data to cloudwatch (for now used for only aurora dbs)"
-}
-
 variable "parameters" {
   type = list(object({
     name         = string
@@ -274,7 +268,7 @@ variable "db_subnet_group_use_name_prefix" {
 variable "create_security_group" {
   type        = bool
   default     = true
-  description = "Whether to create security group and attach rules for rds instances(and ard proxy if we enabled it), if you already have one and do not want to create new security group you can pass that by using var.vpc_security_group_ids"
+  description = "Whether to create security group and attach ingress/egress rules which will be used for rds instances(and rds proxy if we enabled it), if you already have one and do not want to create new security group you can explicitly set this variable to false and pass group id by using var.vpc_security_group_ids"
 }
 
 variable "create_db_parameter_group" {
@@ -352,7 +346,7 @@ variable "aurora_configs" {
 variable "proxy" {
   type = object({
     enabled          = optional(bool, false)                     # whether rds proxy is enabled
-    endpoints        = optional(any, {})                         # proxy endpoints to create and their attributes
+    endpoints        = optional(any, {})                         # map of {<name>: <configs>} additional proxy endpoints(by default we have already one read/write endpoint), for more info check resource doc https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_proxy_endpoint
     client_auth_type = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients
   })
   default     = {}
