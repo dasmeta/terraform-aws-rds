@@ -1,18 +1,28 @@
-# please enable git hooks by running the following command
-```sh
-git config --global core.hooksPath ./githooks # enables git hooks globally
-```
-# How to use
+## This terraform module allows to create aws rds cluster by using various engine types and configurations, it allows also to enable/create rds cluster attached rds proxy
 
-Case 1. Create Security group and create RDS
+## module upgrade guide
+- from <1.4.0 versions to >=1.4.0 version upgrade
+    - make sure you moved the state of "db" underlying module by using command like following
+        ```sh
+        terraform state mv module.<rds-module-name>.module.db module.<rds-module-name>.module.db[0]
+        ```
+    - if you had no storage_type set explicitly then set it to "gp2"
 
-```
+
+
+## How to use (more examples/tests can be found in [./tests](./tests) folder)
+
+### Case 1. Create Security group and create RDS
+
+```terraform
 data "aws_vpc" "main" {
-  id = "vpc-04c3b2abe39cd8a6a"
+  id = "vpc-xxxxxxx"
 }
 
 module "rds" {
-    source  = "dasmeta/modules/aws//modules/rds"
+    source  = "dasmeta/rds/aws"
+    version = "1.4.0"
+
     allocated_storage    = 20
     storage_type         = "gp2"
     engine               = "mysql"
@@ -24,33 +34,17 @@ module "rds" {
     db_password          = "some-password"
     parameter_group_name = "default.mysql5.7"
     vpc_id               = "${data.aws_vpc.main.id}"
-    subnet_ids           = ["subnet-04ad8ad2fdec889ec","subnet-0ea0a01c1bea0a0c9"]
-
-    create_security_group = true
-    ingress_with_cidr_blocks = [
-    {
-        description = "3306 from VPC"
-        from_port   = 3306
-        to_port     = 3306
-        protocol    = "tcp"
-        cidr_blocks = "${data.aws_vpc.main.cidr_block}"
-    }]
-
-    egress_with_cidr_blocks = [
-        {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks ="[0.0.0.0/0]"
-    }]
+    subnet_ids           = ["subnet-xxxxxxxx","subnet-xxxxxx"]
 }
 ```
 
-Case 2. Create RDS
+### Case 2. Create RDS and pass custom/external created security group ids
 
-```
+```terraform
 module "rds" {
-    source  = "dasmeta/modules/aws//modules/rds"
+    source  = "dasmeta/rds/aws"
+    version = "1.4.0"
+
     allocated_storage    = 20
     storage_type         = "gp2"
     engine               = "mysql"
@@ -62,12 +56,18 @@ module "rds" {
     db_password          = "some-password"
     parameter_group_name = "default.mysql5.7"
 
-    vpc_id                 = "vpc-04c3b2abe39cd8a6a"
-    subnet_ids             = ["subnet-04ad8ad2fdec889ec","subnet-0ea0a01c1bea0a0c9"]
+    vpc_id                 = "vpc-xxxxxxxxxxxx"
+    subnet_ids             = ["subnet-xxxxxxx","subnet-xxxxxxxx"]
 
     create_security_group = false
-//  vpc_security_group_ids = ["sg-062742ac7a7f8c7a7"]
+    vpc_security_group_ids = ["sg-xxxxxxxxx"]
 }
+```
+
+## contribution
+### please enable git hooks by running the following command
+```sh
+git config --global core.hooksPath ./githooks # enables git hooks globally
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -87,8 +87,11 @@ No requirements.
 |------|--------|---------|
 | <a name="module_cloudwatch_metric_filters"></a> [cloudwatch\_metric\_filters](#module\_cloudwatch\_metric\_filters) | dasmeta/monitoring/aws//modules/cloudwatch-log-based-metrics | 1.13.2 |
 | <a name="module_cw_alerts"></a> [cw\_alerts](#module\_cw\_alerts) | dasmeta/monitoring/aws//modules/alerts | 1.3.5 |
-| <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | ~> 6.1 |
-| <a name="module_security_group"></a> [security\_group](#module\_security\_group) | terraform-aws-modules/security-group/aws | 4.7.0 |
+| <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | 6.10.0 |
+| <a name="module_db_aurora"></a> [db\_aurora](#module\_db\_aurora) | terraform-aws-modules/rds-aurora/aws | 9.11.0 |
+| <a name="module_db_password"></a> [db\_password](#module\_db\_password) | dasmeta/modules/aws//modules/secret | 2.18.2 |
+| <a name="module_proxy"></a> [proxy](#module\_proxy) | terraform-aws-modules/rds-proxy/aws | 3.1.0 |
+| <a name="module_security_group"></a> [security\_group](#module\_security\_group) | terraform-aws-modules/security-group/aws | 5.2.0 |
 
 ## Resources
 
@@ -96,6 +99,7 @@ No requirements.
 |------|------|
 | [aws_db_instance.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/db_instance) | data source |
 | [aws_ec2_instance_type.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
@@ -104,6 +108,7 @@ No requirements.
 | <a name="input_alarms"></a> [alarms](#input\_alarms) | n/a | <pre>object({<br>    enabled       = optional(bool, true)<br>    sns_topic     = string<br>    custom_values = optional(any, {})<br>  })</pre> | n/a | yes |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | The allocated storage in gigabytes | `number` | `20` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Specifies whether any database modifications are applied immediately, or during the next maintenance window | `bool` | `false` | no |
+| <a name="input_aurora_configs"></a> [aurora\_configs](#input\_aurora\_configs) | The aws rd aurora specific configurations | <pre>object({<br>    engine_mode                        = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)<br>    autoscaling_enabled                = optional(bool, false)           # Whether autoscaling enabled<br>    autoscaling_min_capacity           = optional(number, 0)             # Min number of read replicas<br>    autoscaling_max_capacity           = optional(number, 2)             # Max number of read replicas permitted<br>    instances                          = optional(any, {})               # Cluster instances configs<br>    serverlessv2_scaling_configuration = optional(any, {})               # for enabling serverless-2(the serverless-1(engine_mode=serverless, scaling_configuration is set) is deprecated), valid when `engine_mode` is set to `provisioned`<br>  })</pre> | `{}` | no |
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | The days to retain backups for | `number` | `35` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | The daily time range (in UTC) during which automated backups are created if they are enabled. Example: '09:46-10:16'. Must not overlap with maintenance\_window | `string` | `"03:00-06:00"` | no |
 | <a name="input_cloudwatch_log_group_retention_in_days"></a> [cloudwatch\_log\_group\_retention\_in\_days](#input\_cloudwatch\_log\_group\_retention\_in\_days) | The number of days to retain CloudWatch logs for the DB instance | `number` | `30` | no |
@@ -112,7 +117,7 @@ No requirements.
 | <a name="input_create_db_parameter_group"></a> [create\_db\_parameter\_group](#input\_create\_db\_parameter\_group) | Whether to create a database parameter group | `bool` | `false` | no |
 | <a name="input_create_db_subnet_group"></a> [create\_db\_subnet\_group](#input\_create\_db\_subnet\_group) | Whether to create a database subnet group | `bool` | `true` | no |
 | <a name="input_create_monitoring_role"></a> [create\_monitoring\_role](#input\_create\_monitoring\_role) | Create IAM role with a defined name that permits RDS to send enhanced monitoring metrics to CloudWatch Logs | `bool` | `false` | no |
-| <a name="input_create_security_group"></a> [create\_security\_group](#input\_create\_security\_group) | n/a | `bool` | `false` | no |
+| <a name="input_create_security_group"></a> [create\_security\_group](#input\_create\_security\_group) | Whether to create security group and attach rules for rds instances(and ard proxy if we enabled it), if you already have one and do not want to create new security group you can pass that by using var.vpc\_security\_group\_ids | `bool` | `true` | no |
 | <a name="input_db_instance_tags"></a> [db\_instance\_tags](#input\_db\_instance\_tags) | Additional tags for the DB instance | `map(any)` | `{}` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | The DB name to create. If omitted, no database is created initially | `string` | n/a | yes |
 | <a name="input_db_option_group_tags"></a> [db\_option\_group\_tags](#input\_db\_option\_group\_tags) | Additional tags for the DB option group | `map(any)` | `{}` | no |
@@ -136,18 +141,22 @@ No requirements.
 | <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Set to true to allow RDS to manage the master user password in Secrets Manager | `bool` | `false` | no |
 | <a name="input_max_allocated_storage"></a> [max\_allocated\_storage](#input\_max\_allocated\_storage) | Specifies the value for Storage Autoscaling | `number` | `100` | no |
 | <a name="input_monitoring_interval"></a> [monitoring\_interval](#input\_monitoring\_interval) | The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance. To disable collecting Enhanced Monitoring metrics, specify 0. The default is 0. Valid Values: 0, 1, 5, 10, 15, 30, 60 | `number` | `0` | no |
+| <a name="input_monitoring_role_arn"></a> [monitoring\_role\_arn](#input\_monitoring\_role\_arn) | Arn of the IAM role which will be used to send monitoring data to cloudwatch (for now used for only aurora dbs) | `string` | `""` | no |
 | <a name="input_monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | Name of the IAM role which will be created when create\_monitoring\_role is enabled | `string` | `null` | no |
 | <a name="input_multi_az"></a> [multi\_az](#input\_multi\_az) | Specifies if the RDS instance is multi-AZ | `bool` | `true` | no |
 | <a name="input_options"></a> [options](#input\_options) | A list of Options to apply | `list(any)` | <pre>[<br>  {<br>    "option_name": "MARIADB_AUDIT_PLUGIN",<br>    "option_settings": [<br>      {<br>        "name": "SERVER_AUDIT_EVENTS",<br>        "value": "CONNECT"<br>      },<br>      {<br>        "name": "SERVER_AUDIT_FILE_ROTATIONS",<br>        "value": "37"<br>      }<br>    ]<br>  }<br>]</pre> | no |
 | <a name="input_parameter_group_name"></a> [parameter\_group\_name](#input\_parameter\_group\_name) | Name of the DB parameter group to associate or create | `string` | `"default.mysql5.7"` | no |
-| <a name="input_parameters"></a> [parameters](#input\_parameters) | A list of DB parameters (map) to apply | `list(map(any))` | `[]` | no |
+| <a name="input_parameters"></a> [parameters](#input\_parameters) | A list of DB parameters (map) to apply | <pre>list(object({<br>    name         = string<br>    value        = string<br>    context      = optional(string, "instance")  # The context where parameter will be used, supported values are "instance" and "cluster"<br>    apply_method = optional(string, "immediate") # The apply method for parameter, supported values are "immediate" and "pending-reboot"<br>  }))</pre> | `[]` | no |
 | <a name="input_port"></a> [port](#input\_port) | The port on which the DB accepts connections | `number` | `null` | no |
+| <a name="input_proxy"></a> [proxy](#input\_proxy) | The aws rd proxy specific configurations | <pre>object({<br>    enabled          = optional(bool, false)                     # whether rds proxy is enabled<br>    endpoints        = optional(any, {})                         # proxy endpoints to create and their attributes<br>    client_auth_type = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients<br>  })</pre> | `{}` | no |
+| <a name="input_publicly_accessible"></a> [publicly\_accessible](#input\_publicly\_accessible) | Whether the database is accessible publicly. Note that if you need to enable this you have to place db on public subnets | `bool` | `false` | no |
 | <a name="input_security_group_description"></a> [security\_group\_description](#input\_security\_group\_description) | n/a | `string` | `"MySQL security group"` | no |
 | <a name="input_security_group_name"></a> [security\_group\_name](#input\_security\_group\_name) | n/a | `string` | `"db_security_group"` | no |
+| <a name="input_set_vpc_security_group_rules"></a> [set\_vpc\_security\_group\_rules](#input\_set\_vpc\_security\_group\_rules) | Whether to automatically add security group rules allowing access to db from vpc network | `bool` | `true` | no |
 | <a name="input_skip_final_snapshot"></a> [skip\_final\_snapshot](#input\_skip\_final\_snapshot) | Determines whether a final DB snapshot is created before the DB instance is deleted. If true is specified, no DBSnapshot is created. If false is specified, a DB snapshot is created before the DB instance is deleted | `bool` | `false` | no |
 | <a name="input_slow_queries"></a> [slow\_queries](#input\_slow\_queries) | n/a | <pre>object({<br>    enabled        = optional(bool, true)<br>    query_duration = optional(number, 3)<br>  })</pre> | <pre>{<br>  "enabled": true,<br>  "query_duration": 3<br>}</pre> | no |
 | <a name="input_storage_encrypted"></a> [storage\_encrypted](#input\_storage\_encrypted) | Specifies whether the DB instance is encrypted | `bool` | `false` | no |
-| <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not | `string` | `"gp2"` | no |
+| <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not | `string` | `null` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | A list of VPC subnet IDs | `list(string)` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to all resources | `map(any)` | `{}` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | n/a | `string` | `""` | no |

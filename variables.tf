@@ -8,7 +8,6 @@ variable "security_group_name" {
   default = "db_security_group"
 }
 
-
 variable "alarms" {
   type = object({
     enabled       = optional(bool, true)
@@ -49,9 +48,15 @@ variable "egress_with_cidr_blocks" {
   default = []
 }
 
+variable "set_vpc_security_group_rules" {
+  type        = bool
+  default     = true
+  description = "Whether to automatically add security group rules allowing access to db from vpc network"
+}
+
 variable "storage_type" {
   type        = string
-  default     = "gp2"
+  default     = null
   description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not"
 }
 
@@ -81,7 +86,7 @@ variable "major_engine_version" {
 
 variable "instance_class" {
   type        = string
-  default     = "db.t3.micro"
+  default     = "db.t3.micro" # for aurora-mysql>=3.x(mysql>=8.x) min instance class is "db.t3.medium", check the docs for supported instance classes: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.SupportAurora.html
   description = "The instance type of the RDS instance"
 }
 
@@ -195,8 +200,19 @@ variable "monitoring_role_name" {
   description = "Name of the IAM role which will be created when create_monitoring_role is enabled"
 }
 
+variable "monitoring_role_arn" {
+  type        = string
+  default     = ""
+  description = "Arn of the IAM role which will be used to send monitoring data to cloudwatch (for now used for only aurora dbs)"
+}
+
 variable "parameters" {
-  type        = list(map(any))
+  type = list(object({
+    name         = string
+    value        = string
+    context      = optional(string, "instance")  # The context where parameter will be used, supported values are "instance" and "cluster"
+    apply_method = optional(string, "immediate") # The apply method for parameter, supported values are "immediate" and "pending-reboot"
+  }))
   default     = []
   description = "A list of DB parameters (map) to apply"
 }
@@ -256,8 +272,9 @@ variable "db_subnet_group_use_name_prefix" {
 }
 
 variable "create_security_group" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = true
+  description = "Whether to create security group and attach rules for rds instances(and ard proxy if we enabled it), if you already have one and do not want to create new security group you can pass that by using var.vpc_security_group_ids"
 }
 
 variable "create_db_parameter_group" {
@@ -311,4 +328,33 @@ variable "slow_queries" {
     enabled        = true
     query_duration = 3
   }
+}
+
+variable "publicly_accessible" {
+  type        = bool
+  default     = false
+  description = "Whether the database is accessible publicly. Note that if you need to enable this you have to place db on public subnets"
+}
+
+variable "aurora_configs" {
+  type = object({
+    engine_mode                        = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)
+    autoscaling_enabled                = optional(bool, false)           # Whether autoscaling enabled
+    autoscaling_min_capacity           = optional(number, 0)             # Min number of read replicas
+    autoscaling_max_capacity           = optional(number, 2)             # Max number of read replicas permitted
+    instances                          = optional(any, {})               # Cluster instances configs
+    serverlessv2_scaling_configuration = optional(any, {})               # for enabling serverless-2(the serverless-1(engine_mode=serverless, scaling_configuration is set) is deprecated), valid when `engine_mode` is set to `provisioned`
+  })
+  default     = {}
+  description = "The aws rd aurora specific configurations"
+}
+
+variable "proxy" {
+  type = object({
+    enabled          = optional(bool, false)                     # whether rds proxy is enabled
+    endpoints        = optional(any, {})                         # proxy endpoints to create and their attributes
+    client_auth_type = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients
+  })
+  default     = {}
+  description = "The aws rd proxy specific configurations"
 }
