@@ -39,10 +39,6 @@ module "this" {
     }
   }
 
-  proxy = {
-    enabled = false
-  }
-
   alarms = {
     enabled   = false
     sns_topic = ""
