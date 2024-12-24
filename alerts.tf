@@ -1,20 +1,3 @@
-data "aws_ec2_instance_type" "this" {
-  instance_type = trim(var.instance_class, "db.")
-}
-
-data "aws_db_instance" "database" {
-  db_instance_identifier = var.identifier
-
-  depends_on = [
-    module.db
-  ]
-}
-
-locals {
-  // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
-  slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
-}
-
 module "cw_alerts" {
   count = var.alarms.enabled ? 1 : 0
 
@@ -96,7 +79,7 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom_values.disk.period, "300")
-      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database.allocated_storage * 0.08 * 1024 * 1024 * 1024) #8% of storage in Bytes
+      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database[0].allocated_storage * 0.08 * 1024 * 1024 * 1024) #8% of storage in Bytes
       equation  = try(var.alarms.custom_values.disk.equation, "lte")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
