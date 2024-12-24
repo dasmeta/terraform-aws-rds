@@ -93,4 +93,6 @@ locals {
       }
     ] : [],
   )
+
+  credentials_secret_arn = try(module.db[0].db_instance_master_user_secret_arn, module.db_aurora[0].cluster_master_user_secret.secret_arn, null)
 }

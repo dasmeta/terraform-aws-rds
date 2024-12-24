@@ -145,55 +145,31 @@ module "db_aurora" {
   ]
 }
 
-# store password into secret manager to use in proxy
-module "db_password" {
-  source  = "dasmeta/modules/aws//modules/secret"
-  version = "2.18.2"
-
-  count = var.proxy.enabled && var.manage_master_user_password != true ? 1 : 0
-
-  name = "db-password-${var.identifier}"
-  value = {
-    username = var.db_username
-    password = var.db_password
-  }
-}
-
 module "proxy" {
-  source  = "terraform-aws-modules/rds-proxy/aws"
-  version = "3.1.0"
+  source = "./modules/proxy"
 
   count = var.proxy.enabled ? 1 : 0
 
-  name                   = "proxy-${var.identifier}"
-  vpc_subnet_ids         = var.subnet_ids
+  name                   = var.identifier
+  subnet_ids             = var.subnet_ids
   vpc_security_group_ids = local.vpc_security_group_ids
+  credentials_secret_arn = local.credentials_secret_arn
+  db_username            = local.credentials_secret_arn == null ? var.db_username : null
+  db_password            = local.credentials_secret_arn == null ? var.db_password : null
 
-  endpoints = { for key, item in var.proxy.endpoints : key => merge(item, {
-    name                   = key
-    vpc_subnet_ids         = var.subnet_ids
-    vpc_security_group_ids = local.vpc_security_group_ids
-    })
-  }
+  endpoints         = var.proxy.endpoints
+  client_auth_type  = var.proxy.client_auth_type
+  iam_auth          = var.proxy.iam_auth
+  target_db_cluster = var.proxy.target_db_cluster
+  debug_logging     = var.proxy.debug_logging
 
-  auth = {
-    "superuser" = {
-      client_password_auth_type = var.proxy.client_auth_type
-      iam_auth                  = "DISABLED" # it is supposed that we use mysql as in standard username/password auth way
-      secret_arn                = try(module.db_password[0].secret_id, module.db[0].cluster_master_user_secret, module.db_aurora[0].cluster_master_user_secret)
-    }
-  }
-
-  # Target Aurora cluster
   engine_family         = local.engine_family
-  target_db_cluster     = true # it is supposed that we always create db clusters
   db_cluster_identifier = var.identifier
 
   tags = var.tags
 
   depends_on = [
     module.db,
-    module.db_aurora,
-    module.db_password
+    module.db_aurora
   ]
 }

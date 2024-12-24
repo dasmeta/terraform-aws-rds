@@ -120,6 +120,7 @@ variable "db_username" {
 
 variable "db_password" {
   type        = string
+  sensitive   = true
   description = "Password for the master DB user. Note that this may show up in logs, and it will be stored in the state file"
 }
 
@@ -345,9 +346,13 @@ variable "aurora_configs" {
 
 variable "proxy" {
   type = object({
-    enabled          = optional(bool, false)                     # whether rds proxy is enabled
-    endpoints        = optional(any, {})                         # map of {<name>: <configs>} additional proxy endpoints(by default we have already one read/write endpoint), for more info check resource doc https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_proxy_endpoint
-    client_auth_type = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients
+    enabled             = optional(bool, false)                     # whether rds proxy is enabled
+    endpoints           = optional(any, {})                         # map of {<name>: <configs>} additional proxy endpoints(by default we have already one read/write endpoint), for more info check resource doc https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_proxy_endpoint
+    client_auth_type    = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients
+    iam_auth            = optional(string, "DISABLED")              # Whether IAM auth enabled
+    target_db_cluster   = optional(bool, true)                      # Whether the target db is cluster
+    debug_logging       = optional(bool, false)                     # Whether enhanced logging is enabled
+    idle_client_timeout = optional(number, 1800)                    # The timeout of idle connections, default is 30 minutes
   })
   default     = {}
   description = "The aws rds proxy specific configurations"
