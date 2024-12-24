@@ -350,5 +350,5 @@ variable "proxy" {
     client_auth_type = optional(string, "MYSQL_NATIVE_PASSWORD") # The type of authentication the proxy uses for connections from clients
   })
   default     = {}
-  description = "The aws rd proxy specific configurations"
+  description = "The aws rds proxy specific configurations"
 }
