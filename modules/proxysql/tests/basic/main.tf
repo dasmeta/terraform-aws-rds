@@ -14,17 +14,24 @@ module "proxysql" {
   }
 
   mysql_config = {
-    max_connections        = 20480
-    query_retries          = 5
-    timeout                = 28800000
-    hostname               = "<hostname>.<region>.rds.amazonaws.com"
-    port                   = 3306
-    hostgroup              = 1
-    server_max_connections = 10000
-    username               = "admin"
-    password               = "admin"
-    readwritesplit         = false
-    default_hostgroup      = 1
-    user_max_connections   = 10000
+    version = "8.0.37"
+    servers = [
+      {
+        hostname       = "<write-server-hostname>"
+        isWriter       = true
+        maxConnections = 340
+      },
+      {
+        hostname       = "<read-server-hostname>"
+        isWriter       = false
+        maxConnections = 340
+      }
+    ]
+    users = [{
+      username       = "<servers-db-user>"
+      password       = "<servers-db-password>"
+      maxConnections = 340
+      readOnly       = false
+    }]
   }
 }
