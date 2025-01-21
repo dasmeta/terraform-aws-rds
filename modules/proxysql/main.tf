@@ -1,6 +1,6 @@
 resource "helm_release" "proxysql" {
   name       = var.name
-  chart      = "christianhuth/proxysql"
+  chart      = "proxysql"
   repository = "https://charts.christianhuth.de"
   namespace  = var.namespace
 
