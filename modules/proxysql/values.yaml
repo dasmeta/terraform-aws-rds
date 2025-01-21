@@ -1,0 +1,30 @@
+replicaCount: ${replica_count}
+
+proxysql:
+  admin:
+    user: "${proxysql_admin_user}"
+    password: "${proxysql_admin_password}"
+
+  mysql:
+    maxConnections: ${mysql_max_connections}
+    queryRetriesOnFailure: ${mysql_query_retries}
+    wait_timeout: ${mysql_wait_timeout}
+    readWriteSplit: ${readwritesplit}
+    servers:
+      - hostname: "${mysql_server_hostname}"
+        port: ${mysql_server_port}
+        hostgroup: ${mysql_server_hostgroup}
+        maxConnections: ${mysql_server_max_connections}
+    users:
+      - username: "${mysql_user_username}"
+        password: "${mysql_user_password}"
+        defaultHostgroup: ${mysql_user_default_hostgroup}
+        maxConnections: ${mysql_user_max_connections}
+
+service:
+  type: ClusterIP
+  ports:
+    admin:
+      port: 6032
+    mysql:
+      port: 6033
