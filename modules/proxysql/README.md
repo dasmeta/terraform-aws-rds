@@ -1,4 +1,4 @@
-## This terraform module allows to create proxysql 
+## This terraform module allows to create proxysql
 
 ### TODO:
 -  the underlying helm chart has limited configuration possibility, so it may appear that not everything we need for ProxySQL can be configured by using this module. Consider using another helm chart or developing new one(or forking used one and customizing). For example extra/custom rules and rds aurora specific configs (https://proxysql.com/documentation/aws-aurora-configuration/, https://proxysql.com/blog/aurora-failover-without-losing-transactions/)
