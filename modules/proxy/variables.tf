@@ -5,13 +5,13 @@ variable "name" {
 
 variable "db_cluster_identifier" {
   type        = string
-  default     = null
+  default     = ""
   description = "The rds db cluster name/identifier to use. If this value not passed then it will use proxy name as identifier"
 }
 
 variable "db_instance_identifier" {
   type        = string
-  default     = null
+  default     = ""
   description = "The rds db instance name/identifier to use"
 }
 
