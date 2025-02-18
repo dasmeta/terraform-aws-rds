@@ -1,4 +1,6 @@
-## This terraform module allows to create aws rds cluster by using various engine types and configurations, it allows also to enable/create rds cluster attached rds proxy
+## This terraform module allows to create aws rds cluster by using various engine types and configurations, it allows also to enable/create rds cluster attached rds proxy.
+
+## NOTE: When creating rds with proxy, first create the rds only and then enable proxy and re-apply
 
 ## module upgrade guide
 - from <1.4.0 versions to >=1.4.0 version upgrade

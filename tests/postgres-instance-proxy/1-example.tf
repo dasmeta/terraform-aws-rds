@@ -2,7 +2,7 @@ module "this" {
   source = "../.."
 
   engine         = "postgres"
-  engine_version = "12"
+  engine_version = "16"
   identifier     = "dbdemo"
   db_name        = "devdata"
   db_username    = "userTerraform"
@@ -25,10 +25,8 @@ module "this" {
   }
 
   proxy = {
-    enabled                = true
-    client_auth_type       = "POSTGRES_MD5"
-    target_db_cluster      = false
-    engine_family          = "POSTGRESQL"
-    db_instance_identifier = "dbdemo"
+    enabled           = true # First create only the rds, then the proxy
+    client_auth_type  = "POSTGRES_MD5"
+    target_db_cluster = false
   }
 }

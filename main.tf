@@ -163,8 +163,9 @@ module "proxy" {
   target_db_cluster = var.proxy.target_db_cluster
   debug_logging     = var.proxy.debug_logging
 
-  engine_family         = local.engine_family
-  db_cluster_identifier = var.identifier
+  engine_family          = local.engine_family
+  db_cluster_identifier  = local.is_aurora ? var.identifier : "" # var.identifier
+  db_instance_identifier = local.is_aurora ? "" : var.identifier
 
   tags = var.tags
 
