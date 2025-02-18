@@ -57,7 +57,7 @@ variable "set_vpc_security_group_rules" {
 variable "storage_type" {
   type        = string
   default     = null
-  description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not"
+  description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), gp3, or 'io2' (provisioned IOPS SSD). The default is 'io2' if iops is specified, 'gp2' if not"
 }
 
 variable "parameter_group_name" {
@@ -105,7 +105,7 @@ variable "max_allocated_storage" {
 variable "storage_encrypted" {
   type        = bool
   description = "Specifies whether the DB instance is encrypted"
-  default     = false
+  default     = true
 }
 
 variable "db_name" {

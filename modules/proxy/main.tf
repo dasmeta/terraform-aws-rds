@@ -37,9 +37,11 @@ module "this" {
     }
   }
 
-  engine_family         = var.engine_family
-  target_db_cluster     = var.target_db_cluster
-  db_cluster_identifier = coalesce(var.db_cluster_identifier, var.name)
+  engine_family          = var.engine_family
+  target_db_cluster      = var.target_db_cluster
+  target_db_instance     = !var.target_db_cluster
+  db_cluster_identifier  = var.target_db_cluster ? (length(var.db_cluster_identifier) > 0 ? var.db_cluster_identifier : var.name) : null
+  db_instance_identifier = var.target_db_cluster ? null : (length(var.db_instance_identifier) > 0 ? var.db_instance_identifier : var.name)
 
   tags = var.tags
 
