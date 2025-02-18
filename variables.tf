@@ -57,7 +57,7 @@ variable "set_vpc_security_group_rules" {
 variable "storage_type" {
   type        = string
   default     = null
-  description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), gp3, or 'io2' (provisioned IOPS SSD). The default is 'io2' if iops is specified, 'gp2' if not"
+  description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), gp3, or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not"
 }
 
 variable "parameter_group_name" {
