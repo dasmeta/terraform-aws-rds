@@ -357,3 +357,9 @@ variable "proxy" {
   default     = {}
   description = "The aws rds proxy specific configurations"
 }
+
+variable "enforce_client_tls" {
+  type        = bool
+  default     = true
+  description = "parameter to enforce tls connections from clients"
+}
