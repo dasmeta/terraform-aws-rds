@@ -203,13 +203,19 @@ variable "monitoring_role_name" {
 
 variable "parameters" {
   type = list(object({
-    name         = string
-    value        = string
-    context      = optional(string, "instance")  # The context where parameter will be used, supported values are "instance" and "cluster"
-    apply_method = optional(string, "immediate") # The apply method for parameter, supported values are "immediate" and "pending-reboot"
+    name  = string
+    value = string
+    # context      = optional(string, "instance")  # The context where parameter will be used, supported values are "instance" and "cluster"
+    # apply_method = optional(string, "immediate") # The apply method for parameter, supported values are "immediate" and "pending-reboot"
   }))
   default     = []
   description = "A list of DB parameters (map) to apply"
+}
+
+variable "parameter_group_type" {
+  type        = string
+  default     = "instance"
+  description = "type of the parameter group. Valid values are instance and cluster"
 }
 
 variable "options" {

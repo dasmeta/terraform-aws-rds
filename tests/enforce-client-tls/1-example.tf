@@ -1,22 +1,24 @@
 module "this" {
   source = "../.."
 
-  engine         = "mariadb"
-  engine_version = "11.4.4"
-  identifier     = "dbdemo"
-  db_name        = "devdata"
-  db_username    = "userTerraform"
-  db_password    = "**********" # set this password upon testing
+  engine            = "postgres"
+  engine_version    = "16"
+  instance_class    = "db.t3.medium"
+  identifier        = "dbdemo"
+  db_name           = "devdata"
+  db_username       = "userTerraform"
+  db_password       = "**********" # set this password upon testing
+  allocated_storage = 20
 
-  parameter_group_name = "rds-mariadb-11"
+  parameter_group_name = "postgresql-16"
+  parameter_group_type = "instance"
   vpc_id               = "vpc-0090b8e4ff88411cc"
   subnet_ids           = ["subnet-018b6ea90a71ae223", "subnet-0c7a12072e0fff04b"]
   enforce_client_tls   = true
 
-  apply_immediately                      = true
-  cloudwatch_log_group_retention_in_days = 90
-  create_cloudwatch_log_group            = true
-  enabled_cloudwatch_logs_exports        = ["audit"]
+  skip_final_snapshot = true
+
+  apply_immediately = true
 
   create_security_group = false
 

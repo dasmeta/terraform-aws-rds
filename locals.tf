@@ -49,15 +49,22 @@ locals {
   params_postgres = { for p in local.default_params_postgres : p.name => p.value }
 
   # Create a map from the user parameters
-  user_params_map    = { for p in var.parameters : p.name => p.value if p.context == "instance" }
-  cluster_params_map = [for p in var.parameters : p if p.context == "cluster"]
+  user_params_map = { for p in var.parameters : p.name => p.value if var.parameter_group_type == "instance" }
+  cluster_params_map = concat(
+    [for p in var.parameters : p if var.parameter_group_type == "cluster"],
+    (var.enforce_client_tls ? [for k, v in(local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {
+      name  = k,
+      value = "ON"
+    }] : [])
+  )
 
   # Merge the two maps, with user parameters overriding defaults
   merged_params_map = merge(
     ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? local.params_mysql : {},
     (var.engine == "postgres" && var.slow_queries.enabled) ? local.params_postgres : {},
     local.user_params_map,
-    var.enforce_client_tls ? ((var.engine == "mysql" || var.engine == "mariadb") ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {},
+    var.enforce_client_tls ? (local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {}
+    #var.enforce_client_tls ? ((var.engine == "mysql" || var.engine == "mariadb") ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {},
   )
 
   # Convert the merged map back to a list of maps
@@ -67,7 +74,7 @@ locals {
 
   // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
   slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
-  parameter_group_family       = format("%s%s%s", (local.is_aurora ? "aurora-" : ""), var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : var.engine_version))
+  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : var.engine_version))
 
   ingress_with_cidr_blocks = concat(
     var.ingress_with_cidr_blocks,
