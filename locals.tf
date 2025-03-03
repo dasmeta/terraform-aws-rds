@@ -49,9 +49,9 @@ locals {
   params_postgres = { for p in local.default_params_postgres : p.name => p.value }
 
   # Create a map from the user parameters
-  user_params_map = { for p in var.parameters : p.name => p.value if var.parameter_group_type == "instance" }
+  user_params_map = { for p in var.parameters : p.name => p.value if p.context == "instance" }
   cluster_params_map = concat(
-    [for p in var.parameters : p if var.parameter_group_type == "cluster"],
+    [for p in var.parameters : p if p.context == "cluster"],
     (var.enforce_client_tls ? [for k, v in(local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {
       name  = k,
       value = "ON"
@@ -63,7 +63,7 @@ locals {
     ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? local.params_mysql : {},
     (var.engine == "postgres" && var.slow_queries.enabled) ? local.params_postgres : {},
     local.user_params_map,
-    var.enforce_client_tls ? (local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {}
+    (var.enforce_client_tls && !local.is_aurora) ? (local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {}
     #var.enforce_client_tls ? ((var.engine == "mysql" || var.engine == "mariadb") ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {},
   )
 
