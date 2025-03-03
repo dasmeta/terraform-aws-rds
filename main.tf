@@ -46,7 +46,7 @@ module "db" {
 
   # DB parameter group configs
   create_db_parameter_group       = local.create_db_parameter_group
-  family                          = var.engine == "postgres" ? "${var.engine}${split(".", var.engine_version)[0]}" : "${var.engine}${var.engine_version}"
+  family                          = local.parameter_group_family
   parameter_group_name            = local.parameter_group_name
   parameter_group_use_name_prefix = false
   parameter_group_description     = "Custom parameter group for ${var.identifier}"
@@ -110,7 +110,7 @@ module "db_aurora" {
 
   # DB instance parameter group configs
   create_db_parameter_group          = local.create_db_parameter_group
-  db_parameter_group_family          = "${var.engine}${var.engine_version}"
+  db_parameter_group_family          = local.parameter_group_family
   db_parameter_group_name            = local.parameter_group_name
   db_parameter_group_use_name_prefix = false
   db_parameter_group_description     = "Custom parameter group for ${var.identifier}"
@@ -118,7 +118,7 @@ module "db_aurora" {
 
   # DB cluster parameter group configs
   create_db_cluster_parameter_group          = length(local.cluster_params_map) > 0
-  db_cluster_parameter_group_family          = "${var.engine}${var.engine_version}"
+  db_cluster_parameter_group_family          = local.parameter_group_family
   db_cluster_parameter_group_name            = "${local.parameter_group_name}-cluster"
   db_cluster_parameter_group_use_name_prefix = false
   db_cluster_parameter_group_description     = "Custom parameter group for DB cluster ${var.identifier}"

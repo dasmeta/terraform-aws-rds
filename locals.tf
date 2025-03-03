@@ -3,7 +3,7 @@ locals {
   enabled_cloudwatch_logs_exports = ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? ["slowquery"] : (var.engine == "postgres" && var.slow_queries.enabled) ? ["postgresql"] : var.enabled_cloudwatch_logs_exports
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled
   cloudwatch_log_groups          = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/instance/${var.identifier}/${type}" } : {}
-  create_db_parameter_group      = var.slow_queries.enabled ? true : var.create_db_parameter_group
+  create_db_parameter_group      = var.slow_queries.enabled || var.enforce_client_tls ? true : var.create_db_parameter_group
   parameter_group_name           = local.create_db_parameter_group ? "${var.identifier}-${var.engine}" : null
   postgres_slow_queries_duration = var.slow_queries.query_duration * 1000
   port                           = (endswith(var.engine, "mysql") || endswith(var.engine, "mariadb")) ? 3306 : endswith(var.engine, "postgres") ? 5432 : var.port
@@ -36,19 +36,34 @@ locals {
     },
   ]
 
+  enforce_tls_mysql = {
+    "require_secure_transport" = 1
+  }
+
+  enforce_tls_postgres = {
+    "rds.force_ssl" = 1
+  }
+
   # Maps from the default parameters for easier merging
   params_mysql    = { for p in local.default_params_mysql : p.name => p.value }
   params_postgres = { for p in local.default_params_postgres : p.name => p.value }
 
   # Create a map from the user parameters
-  user_params_map    = { for p in var.parameters : p.name => p.value if p.context == "instance" }
-  cluster_params_map = [for p in var.parameters : p if p.context == "cluster"]
+  user_params_map = { for p in var.parameters : p.name => p.value if p.context == "instance" }
+  cluster_params_map = concat(
+    [for p in var.parameters : p if p.context == "cluster"],
+    (var.enforce_client_tls ? [for k, v in(local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {
+      name  = k,
+      value = "ON"
+    }] : [])
+  )
 
   # Merge the two maps, with user parameters overriding defaults
   merged_params_map = merge(
     ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? local.params_mysql : {},
     (var.engine == "postgres" && var.slow_queries.enabled) ? local.params_postgres : {},
-    local.user_params_map
+    local.user_params_map,
+    (var.enforce_client_tls && !local.is_aurora) ? (local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {}
   )
 
   # Convert the merged map back to a list of maps
@@ -58,6 +73,7 @@ locals {
 
   // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
   slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
+  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : var.engine_version))
 
   ingress_with_cidr_blocks = concat(
     var.ingress_with_cidr_blocks,
