@@ -64,7 +64,6 @@ locals {
     (var.engine == "postgres" && var.slow_queries.enabled) ? local.params_postgres : {},
     local.user_params_map,
     (var.enforce_client_tls && !local.is_aurora) ? (local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {}
-    #var.enforce_client_tls ? ((var.engine == "mysql" || var.engine == "mariadb") ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {},
   )
 
   # Convert the merged map back to a list of maps
