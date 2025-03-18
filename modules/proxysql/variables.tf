@@ -19,7 +19,7 @@ variable "create_namespace" {
 variable "chart_version" {
   type        = string
   description = "The helm chart version"
-  default     = "0.1.0"
+  default     = "0.1.1"
 }
 
 variable "configs" {
