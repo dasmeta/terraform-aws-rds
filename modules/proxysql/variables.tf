@@ -19,7 +19,7 @@ variable "create_namespace" {
 variable "chart_version" {
   type        = string
   description = "The helm chart version"
-  default     = "0.1.1"
+  default     = "0.1.3"
 }
 
 variable "configs" {
@@ -74,10 +74,12 @@ variable "configs" {
       readWriteSplit        = optional(bool, false)          # this option allows to enable read and write splitting rules under mysql_query_rules config/table, the write ones go to hostgroup=0 and read ones go to hostgroup=1
       queyCacheSizeMB       = optional(number, 226)          # the size of ProxySQL's query cache in megabytes
     })
-    monitoring = optional( # prometheus metrics configs, `method` can be "annotations" or "podMonitor"
-      object({ enabled = bool, method = string }),
-      { enabled = true, method = "annotations" }
-    )
+    monitoring = optional( # prometheus metrics configs, `method` can be "annotations", "podMonitor" or "serviceMonitor"
+      object({
+        enabled    = optional(bool, true),
+        method     = optional(string, "annotations")
+        targetPort = optional(number, 6070)
+    }), {})
     autoscaling = optional( # auto scale configs
       object({ minReplicas = number, maxReplicas = number }),
       { minReplicas = 2, maxReplicas = 10 }

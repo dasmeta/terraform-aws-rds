@@ -22,12 +22,20 @@ module "custom_default_configs" {
         admin          = var.configs.admin
         stats          = var.configs.stats
         mysql          = var.configs.mysql
-        podMonitor     = local.podMonitor
         podAnnotations = local.podAnnotations
         volumes        = local.volumes
         envFrom        = local.envFrom
         service        = local.service
         web            = local.web
+        extraPorts     = local.containerExtraPorts
+        serviceMonitor = {
+          enabled    = var.configs.monitoring.enabled && var.configs.monitoring.method == "serviceMonitor"
+          targetPort = var.configs.monitoring.targetPort
+        }
+      }
+      podMonitor = {
+        enabled    = var.configs.monitoring.enabled && var.configs.monitoring.method == "podMonitor"
+        targetPort = var.configs.monitoring.targetPort
       }
     },
     var.extra_configs

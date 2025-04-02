@@ -1,14 +1,10 @@
 locals {
   podAnnotations = merge(var.configs.monitoring.enabled && var.configs.monitoring.method == "annotations" ? {
     "prometheus.io/scrape" = "true"
-    "prometheus.io/port"   = "6070"
+    "prometheus.io/port"   = var.configs.monitoring.targetPort
     } : {},
     { "app.config/checksum" = sha256(jsonencode(merge(var.configs, var.extra_configs))) } # to rollout restart deploy on config change
   )
-
-  podMonitor = var.configs.monitoring.enabled && var.configs.monitoring.method == "podMonitor" ? {
-    enabled = true
-  } : {}
 
   defaultPort = try(var.configs.mysql.ports[0], 3306)
 
@@ -21,6 +17,12 @@ locals {
         protocol   = "TCP"
         name       = "admin"
       }],
+      var.configs.monitoring.enabled ? [{
+        port       = var.configs.monitoring.targetPort # prometheus monitoring port
+        targetPort = var.configs.monitoring.targetPort
+        protocol   = "TCP"
+        name       = "metrics"
+      }] : [],
       [for port in var.configs.mysql.ports : {
         port       = port # additional mysql ports
         targetPort = port
@@ -35,6 +37,11 @@ locals {
       }] : []
     )
   }
+  containerExtraPorts = [for item in local.service.extraPorts : {
+    name          = item.name
+    protocol      = item.protocol
+    containerPort = item.targetPort
+  }]
 
   volumes = [
     {
