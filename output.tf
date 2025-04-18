@@ -1,11 +1,11 @@
 output "db_instance_address" {
   description = "The address of the RDS instance"
-  value       = try(module.db, "")
+  value       = try(module.db.db_instance_address, "")
 }
 
 output "db_instance_arn" {
   description = "The ARN of the RDS instance"
-  value       = try(module.db, "")
+  value       = try(module.db.db_instance_arn, "")
 }
 
 output "db_instance_endpoint" {
