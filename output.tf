@@ -10,7 +10,7 @@ output "db_instance_arn" {
 
 output "db_instance_endpoint" {
   description = "The connection endpoint"
-  value       = try(module.db[0].endpoint, "")
+  value       = try(module.db[0].db_instance_endpoint, "")
 }
 
 output "db_instance_port" {
