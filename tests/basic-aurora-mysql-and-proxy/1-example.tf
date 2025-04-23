@@ -30,12 +30,13 @@ module "this" {
   security_group_name   = "test-basic-aurora-mysql-and-proxy-sg"
 
   aurora_configs = {
-    autoscaling_enabled      = true
-    autoscaling_min_capacity = 1
-    autoscaling_max_capacity = 2
-
     instances = { # at least one master instance needs to be created
       master = {}
+    }
+    autoscaling = {
+      enabled      = true
+      min_capacity = 1
+      max_capacity = 2
     }
   }
 

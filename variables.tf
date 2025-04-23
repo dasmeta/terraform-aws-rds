@@ -333,12 +333,28 @@ variable "publicly_accessible" {
 
 variable "aurora_configs" {
   type = object({
-    engine_mode                        = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)
-    autoscaling_enabled                = optional(bool, false)           # Whether autoscaling enabled
-    autoscaling_min_capacity           = optional(number, 0)             # Min number of read replicas
-    autoscaling_max_capacity           = optional(number, 2)             # Max number of read replicas permitted
-    instances                          = optional(any, {})               # Cluster instances configs
-    serverlessv2_scaling_configuration = optional(any, {})               # for enabling serverless-2(the serverless-1(engine_mode=serverless, scaling_configuration is set) is deprecated), valid when `engine_mode` is set to `provisioned`
+    engine_mode = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)
+    instances   = optional(any, {})               # Cluster instances configs
+    autoscaling = optional(object({
+      enabled                = optional(bool, false)                              # Whether autoscaling enabled
+      min_capacity           = optional(number, 0)                                # Min number of read replicas
+      max_capacity           = optional(number, 2)                                # Max number of read replicas permitted
+      predefined_metric_type = optional(string, "RDSReaderAverageCPUUtilization") # The metric type to scale on. Valid values are `RDSReaderAverageCPUUtilization` and `RDSReaderAverageDatabaseConnections`
+      scale_in_cooldown      = optional(number, 300)                              # Cooldown in seconds before allowing further scaling operations after a scale in
+      scale_out_cooldown     = optional(number, 300)                              # Cooldown in seconds before allowing further scaling operations after a scale out
+      target_cpu             = optional(number, 70)                               # CPU threshold which will initiate autoscaling
+      target_connections     = optional(number, 700)                              # Average number of connections threshold which will initiate autoscaling. Default value is 70% of db.r4/r5/r6g.large's default max_connections
+      schedules = optional(list(object({                                          # List of scheduled autoscale configs
+        name         = string                                                     # The name of scheduled scale
+        schedule     = string                                                     # The schedule time to apply auto scale, can be cron(min hour day month week-day year ), at(yyyy-mm-ddThh:mm:ss) or rate(value unit) formats
+        min_capacity = optional(number)                                           # If not set defaults to aurora_configs.autoscaling_min_capacity
+        max_capacity = optional(number)                                           # If not set defaults to aurora_configs.autoscaling_max_capacity
+        timezone     = optional(string, null)                                     # By default it uses UTC, available values can be found here: https://www.joda.org/joda-time/timezones.html
+      })), [])
+
+      scaling_configuration              = optional(any, {}) # map of nested attributes with scaling properties. Only valid when `engine_mode` is set to `serverless`
+      serverlessv2_scaling_configuration = optional(any, {}) # for enabling serverless-2(the serverless-1(engine_mode=serverless, scaling_configuration is set) is deprecated), valid when `engine_mode` is set to `provisioned`
+    }), {})
   })
   default     = {}
   description = "The aws rd aurora specific configurations"
