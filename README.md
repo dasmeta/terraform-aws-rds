@@ -9,7 +9,7 @@
         terraform state mv module.<rds-module-name>.module.db module.<rds-module-name>.module.db[0]
         ```
     - if you had no storage_type set explicitly then set it to "gp2"
-- from version <1.6.5 to >=1.70.0
+- from version <1.6.5 to >=1.7.0
   - the aurora cluster auto-scaling related configs have been moved under aurora_configs.autoscaling object so make sure to update old aurora_configs.autoscaling_* options into corresponding aurora_configs.autoscaling.* ones
   - there is new options in aurora_configs.autoscaling to manage auto scaling related configs and also new ability to define scheduled autoscaling
   - NOTE, that in case you have auto scaled instances created in cluster and want to destroy cluster via terraform code you have to scale down and remove those instances manually before applying cluster destruct code

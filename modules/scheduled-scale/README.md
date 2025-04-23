@@ -5,7 +5,7 @@
 ```terraform
 module "rds_schedule_auto_scale" {
     source  = "dasmeta/rds/aws//modules/scheduled-scale"
-    version = "1.70.0"
+    version = "1.7.0"
 
     target = {
         resource_id  = "cluster:my-test-cluster"
