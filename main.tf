@@ -129,20 +129,40 @@ module "db_aurora" {
 
   # aurora specific configs
   engine_mode                        = var.aurora_configs.engine_mode
-  autoscaling_enabled                = var.aurora_configs.autoscaling_enabled
-  autoscaling_min_capacity           = var.aurora_configs.autoscaling_min_capacity
-  autoscaling_max_capacity           = var.aurora_configs.autoscaling_max_capacity
   instances                          = var.aurora_configs.instances
-  serverlessv2_scaling_configuration = var.aurora_configs.serverlessv2_scaling_configuration
-
-  manage_master_user_password = var.manage_master_user_password
-  publicly_accessible         = var.publicly_accessible
+  autoscaling_enabled                = var.aurora_configs.autoscaling.enabled
+  autoscaling_min_capacity           = var.aurora_configs.autoscaling.min_capacity
+  autoscaling_max_capacity           = var.aurora_configs.autoscaling.max_capacity
+  predefined_metric_type             = var.aurora_configs.autoscaling.predefined_metric_type
+  autoscaling_scale_in_cooldown      = var.aurora_configs.autoscaling.scale_in_cooldown
+  autoscaling_scale_out_cooldown     = var.aurora_configs.autoscaling.scale_out_cooldown
+  autoscaling_target_cpu             = var.aurora_configs.autoscaling.target_cpu
+  autoscaling_target_connections     = var.aurora_configs.autoscaling.target_connections
+  serverlessv2_scaling_configuration = var.aurora_configs.autoscaling.serverlessv2_scaling_configuration
+  scaling_configuration              = var.aurora_configs.autoscaling.scaling_configuration
+  manage_master_user_password        = var.manage_master_user_password
+  publicly_accessible                = var.publicly_accessible
 
   tags = var.tags
 
   depends_on = [
     module.security_group
   ]
+}
+
+module "scheduled_scale" {
+  source = "./modules/scheduled-scale"
+
+  count = local.is_aurora && var.aurora_configs.engine_mode != "serverless" && var.aurora_configs.autoscaling.enabled && length(var.aurora_configs.autoscaling.schedules) > 0 ? 1 : 0
+
+  target = {
+    resource_id  = "cluster:${module.db_aurora[0].cluster_id}"
+    min_capacity = var.aurora_configs.autoscaling.min_capacity
+    max_capacity = var.aurora_configs.autoscaling.max_capacity
+  }
+  scheduled_actions = [for item in var.aurora_configs.autoscaling.schedules : merge(item, { name = "${module.db_aurora[0].cluster_id}-${item.name}" })]
+
+  depends_on = [module.db_aurora]
 }
 
 module "proxy" {
