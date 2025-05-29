@@ -100,6 +100,7 @@ variable "configs" {
         memory = "256Mi"
       })
     }), {})
+    setLinkerdOpaquePorts = optional(bool, true) # this allows to automatically set linkerd annotation like `config.linkerd.io/opaque-ports: 3306,3307,6032` on proxysql service to fix linkerd enabled client app connection long lasting issues to non standard mysql tcp ports like extra 3307 port
   })
   description = "ProxySQL common configurations. If there is need to override underlying default configs or do additional chart supported configs in plain way use var.configs"
   sensitive   = true # we have user password data here so we set this variable sensitive to not expose it in tf logs

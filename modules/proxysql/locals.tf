@@ -8,6 +8,10 @@ locals {
 
   defaultPort = try(var.configs.mysql.ports[0], 3306)
 
+  serviceAnnotations = var.configs.setLinkerdOpaquePorts ? {
+    "config.linkerd.io/opaque-ports" = join(",", concat(var.configs.mysql.ports, [var.configs.admin.port]))
+  } : {}
+
   service = {
     port = local.defaultPort
     extraPorts = concat(
@@ -36,6 +40,7 @@ locals {
         name       = "web"
       }] : []
     )
+    annotations = local.serviceAnnotations
   }
   containerExtraPorts = [for item in local.service.extraPorts : {
     name          = item.name
