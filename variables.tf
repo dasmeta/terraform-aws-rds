@@ -111,16 +111,19 @@ variable "storage_encrypted" {
 variable "db_name" {
   type        = string
   description = "The DB name to create. If omitted, no database is created initially"
+  default     = ""
 }
 
 variable "db_username" {
   type        = string
   description = "Username for the master DB user"
+  default     = ""
 }
 
 variable "db_password" {
   type        = string
   sensitive   = true
+  default     = ""
   description = "Password for the master DB user. Note that this may show up in logs, and it will be stored in the state file"
 }
 
@@ -378,4 +381,10 @@ variable "enforce_client_tls" {
   type        = bool
   default     = true
   description = "parameter to enforce tls connections from clients"
+}
+
+variable "replication_source_identifier" {
+  description = "ARN of a source DB cluster or DB instance if this DB cluster is to be created as a Read Replica"
+  type        = string
+  default     = null
 }

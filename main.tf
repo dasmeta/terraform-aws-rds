@@ -69,7 +69,7 @@ module "db" {
 
 module "db_aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.11.0"
+  version = "9.12.0"
 
   count = local.is_aurora ? 1 : 0
 
@@ -107,6 +107,8 @@ module "db_aurora" {
   monitoring_interval                    = var.monitoring_interval
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
+
+  replication_source_identifier = var.replication_source_identifier
 
   # DB instance parameter group configs
   create_db_parameter_group          = local.create_db_parameter_group
