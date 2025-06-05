@@ -54,7 +54,7 @@ locals {
     [for p in var.parameters : p if p.context == "cluster"],
     (var.enforce_client_tls ? [for k, v in(local.engine_family == "MYSQL" ? local.enforce_tls_mysql : local.enforce_tls_postgres) : {
       name  = k,
-      value = "ON"
+      value = "1"
     }] : [])
   )
 
@@ -73,7 +73,7 @@ locals {
 
   // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
   slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
-  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : var.engine_version))
+  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(regex("postgres", var.engine)) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
 
   ingress_with_cidr_blocks = concat(
     var.ingress_with_cidr_blocks,
