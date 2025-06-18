@@ -99,6 +99,10 @@ module "db_aurora" {
   preferred_backup_window         = var.backup_window
   enabled_cloudwatch_logs_exports = local.enabled_cloudwatch_logs_exports
 
+  performance_insights_enabled          = var.performance_insights_enabled
+  performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
+  performance_insights_retention_period = var.performance_insights_retention_period
+
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.skip_final_snapshot
   deletion_protection     = var.deletion_protection
