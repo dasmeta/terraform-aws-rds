@@ -388,3 +388,21 @@ variable "replication_source_identifier" {
   type        = string
   default     = null
 }
+
+variable "performance_insights_enabled" {
+  description = "Specifies whether Performance Insights is enabled or not, the default is false"
+  type        = bool
+  default     = null
+}
+
+variable "performance_insights_kms_key_arn" {
+  description = "Specifies the KMS Key ID to encrypt Performance Insights data. If not specified, the default RDS KMS key will be used (aws/rds)"
+  type        = string
+  default     = null
+}
+
+variable "performance_insights_retention_period" {
+  description = "Specifies the amount of time to retain performance insights data for. Defaults to 7 days if Performance Insights are enabled. Valid values are 7, month * 31 (where month is a number of months from 1-23), and 731"
+  type        = number
+  default     = null
+}
