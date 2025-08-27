@@ -2,7 +2,7 @@ locals {
   vpc_security_group_ids          = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
   enabled_cloudwatch_logs_exports = ((var.engine == "mysql" || var.engine == "mariadb") && var.slow_queries.enabled) ? ["slowquery"] : (var.engine == "postgres" && var.slow_queries.enabled) ? ["postgresql"] : var.enabled_cloudwatch_logs_exports
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled
-  cloudwatch_log_groups          = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/instance/${var.identifier}/${type}" } : {}
+  cloudwatch_log_groups          = var.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/${local.is_aurora ? "cluster" : "instance"}/${var.identifier}/${type}" } : {}
   create_db_parameter_group      = var.slow_queries.enabled || var.enforce_client_tls ? true : var.create_db_parameter_group
   parameter_group_name           = local.create_db_parameter_group ? "${var.identifier}-${var.engine}" : null
   postgres_slow_queries_duration = var.slow_queries.query_duration * 1000
@@ -73,7 +73,7 @@ locals {
 
   // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
   slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
-  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(regex("postgres", var.engine)) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
+  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(try(regex("postgres", var.engine), "")) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
 
   ingress_with_cidr_blocks = concat(
     var.ingress_with_cidr_blocks,

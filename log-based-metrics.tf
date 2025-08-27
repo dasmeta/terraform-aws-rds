@@ -16,6 +16,7 @@ module "cloudwatch_metric_filters" {
   metrics_namespace = "RDSLogBasedMetrics"
 
   depends_on = [
+    module.db_aurora,
     module.db
   ]
 }

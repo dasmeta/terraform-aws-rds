@@ -8,9 +8,8 @@ module "rds" {
   db_username    = "userTerraform"
   db_password    = "password-terraform"
 
-  parameter_group_name = "rds-pg-12"
-  vpc_id               = "vpc-046effd7e14742653"
-  subnet_ids           = ["subnet-08b19374efcede225", "subnet-01fd8508db302e82c", "subnet-0af7c75104c35cbde"]
+  vpc_id     = "vpc-046effd7e14742653"
+  subnet_ids = ["subnet-08b19374efcede225", "subnet-01fd8508db302e82c", "subnet-0af7c75104c35cbde"]
 
   apply_immediately                      = true
   cloudwatch_log_group_retention_in_days = 90

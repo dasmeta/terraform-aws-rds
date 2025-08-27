@@ -10,10 +10,9 @@ module "this" {
   # db_password       = "**********" # set this password upon testing
   allocated_storage = null
 
-  parameter_group_name = "aurora-postgres-16"
-  vpc_id               = data.aws_vpc.default.id
-  subnet_ids           = data.aws_subnets.default.ids
-  enforce_client_tls   = true
+  vpc_id             = data.aws_vpc.default.id
+  subnet_ids         = data.aws_subnets.default.ids
+  enforce_client_tls = true
 
   skip_final_snapshot   = true
   apply_immediately     = true
