@@ -66,12 +66,6 @@ variable "storage_type" {
   description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), gp3, or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not"
 }
 
-variable "parameter_group_name" {
-  type        = string
-  default     = "default.mysql5.7"
-  description = "Name of the DB parameter group to associate or create"
-}
-
 variable "engine" {
   type        = string
   default     = "mysql"
@@ -92,7 +86,7 @@ variable "major_engine_version" {
 
 variable "instance_class" {
   type        = string
-  default     = "db.t3.micro" # for aurora-mysql>=3.x(mysql>=8.x) min instance class is "db.t3.medium", check the docs for supported instance classes: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.SupportAurora.html
+  default     = "db.t3.micro" # for aurora-mysql>=3.x(mysql>=8.x) min instance class is "db.t3.medium", the performance insights for aurora can be enabled only r-series or t4g instances can be used, at least "db.t4g.medium". check the docs for supported instance classes: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.SupportAurora.html
   description = "The instance type of the RDS instance"
 }
 
@@ -158,7 +152,7 @@ variable "iam_database_authentication_enabled" {
 
 variable "maintenance_window" {
   type        = string
-  default     = "Mon:00:00-Mon:03:00"
+  default     = "Mon:01:00-Mon:02:00"
   description = "The window to perform maintenance in. Syntax: 'ddd:hh24:mi-ddd:hh24:mi'. Eg: 'Mon:00:00-Mon:03:00'"
 }
 
@@ -340,6 +334,12 @@ variable "publicly_accessible" {
   description = "Whether the database is accessible publicly. Note that if you need to enable this you have to place db on public subnets"
 }
 
+variable "database_insights_mode" {
+  type        = string
+  default     = null
+  description = "The mode of Database Insights to enable for the DB cluster. Valid values: standard, advanced"
+}
+
 variable "aurora_configs" {
   type = object({
     engine_mode = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)
@@ -408,7 +408,7 @@ variable "performance_insights_kms_key_arn" {
 }
 
 variable "performance_insights_retention_period" {
-  description = "Specifies the amount of time to retain performance insights data for. Defaults to 7 days if Performance Insights are enabled. Valid values are 7, month * 31 (where month is a number of months from 1-23), and 731"
+  description = "Specifies the amount of time to retain performance insights data for. Defaults to 7 days if Performance Insights are enabled. Valid values are 7, month * 31 (where month is a number of months from 1-23), and 731. When using `advanced` database_insights_mode this value should be at least 465"
   type        = number
   default     = null
 }

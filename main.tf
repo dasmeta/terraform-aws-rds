@@ -1,6 +1,6 @@
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "6.10.0"
+  version = "6.12.0"
 
   count = local.is_aurora ? 0 : 1
 
@@ -33,6 +33,11 @@ module "db" {
   maintenance_window              = var.maintenance_window
   backup_window                   = var.backup_window
   enabled_cloudwatch_logs_exports = local.enabled_cloudwatch_logs_exports
+
+  performance_insights_enabled          = var.performance_insights_enabled
+  performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
+  performance_insights_retention_period = var.performance_insights_retention_period
+  database_insights_mode                = var.database_insights_mode
 
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.skip_final_snapshot
@@ -69,7 +74,7 @@ module "db" {
 
 module "db_aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.12.0"
+  version = "9.15.0"
 
   count = local.is_aurora ? 1 : 0
 
@@ -102,6 +107,7 @@ module "db_aurora" {
   performance_insights_enabled          = var.performance_insights_enabled
   performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
   performance_insights_retention_period = var.performance_insights_retention_period
+  database_insights_mode                = var.database_insights_mode
 
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.skip_final_snapshot
@@ -134,20 +140,25 @@ module "db_aurora" {
   db_subnet_group_name   = var.db_subnet_group_name
 
   # aurora specific configs
-  engine_mode                        = var.aurora_configs.engine_mode
-  instances                          = var.aurora_configs.instances
-  autoscaling_enabled                = var.aurora_configs.autoscaling.enabled
-  autoscaling_min_capacity           = var.aurora_configs.autoscaling.min_capacity
-  autoscaling_max_capacity           = var.aurora_configs.autoscaling.max_capacity
-  predefined_metric_type             = var.aurora_configs.autoscaling.predefined_metric_type
-  autoscaling_scale_in_cooldown      = var.aurora_configs.autoscaling.scale_in_cooldown
-  autoscaling_scale_out_cooldown     = var.aurora_configs.autoscaling.scale_out_cooldown
-  autoscaling_target_cpu             = var.aurora_configs.autoscaling.target_cpu
-  autoscaling_target_connections     = var.aurora_configs.autoscaling.target_connections
-  serverlessv2_scaling_configuration = var.aurora_configs.autoscaling.serverlessv2_scaling_configuration
-  scaling_configuration              = var.aurora_configs.autoscaling.scaling_configuration
-  manage_master_user_password        = var.manage_master_user_password
-  publicly_accessible                = var.publicly_accessible
+  engine_mode                                   = var.aurora_configs.engine_mode
+  instances                                     = var.aurora_configs.instances
+  autoscaling_enabled                           = var.aurora_configs.autoscaling.enabled
+  autoscaling_min_capacity                      = var.aurora_configs.autoscaling.min_capacity
+  autoscaling_max_capacity                      = var.aurora_configs.autoscaling.max_capacity
+  predefined_metric_type                        = var.aurora_configs.autoscaling.predefined_metric_type
+  autoscaling_scale_in_cooldown                 = var.aurora_configs.autoscaling.scale_in_cooldown
+  autoscaling_scale_out_cooldown                = var.aurora_configs.autoscaling.scale_out_cooldown
+  autoscaling_target_cpu                        = var.aurora_configs.autoscaling.target_cpu
+  autoscaling_target_connections                = var.aurora_configs.autoscaling.target_connections
+  serverlessv2_scaling_configuration            = var.aurora_configs.autoscaling.serverlessv2_scaling_configuration
+  scaling_configuration                         = var.aurora_configs.autoscaling.scaling_configuration
+  cluster_performance_insights_enabled          = var.performance_insights_enabled
+  cluster_performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
+  cluster_performance_insights_retention_period = var.performance_insights_retention_period
+  cluster_monitoring_interval                   = var.monitoring_interval
+
+  manage_master_user_password = var.manage_master_user_password
+  publicly_accessible         = var.publicly_accessible
 
   tags = var.tags
 
