@@ -398,7 +398,7 @@ variable "replication_source_identifier" {
 variable "performance_insights_enabled" {
   description = "Specifies whether Performance Insights is enabled or not, the default is false"
   type        = bool
-  default     = null
+  default     = false
 }
 
 variable "performance_insights_kms_key_arn" {
