@@ -1,5 +1,4 @@
-output "final_config" {
-  value       = module.custom_default_configs.merged
-  description = "The helm chart final prepared configs"
-  sensitive   = true
+output "helm_meta" {
+  value       = helm_release.proxysql.metadata
+  description = "The helm chart release metadata"
 }

@@ -6,22 +6,22 @@ resource "helm_release" "proxysql" {
   namespace        = var.namespace
   create_namespace = var.create_namespace
 
-  values = [jsonencode(module.custom_default_configs.merged)]
-}
-
-module "custom_default_configs" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "1.0.2"
-
-  maps = [
-    {
+  values = [
+    jsonencode({
       proxysql = {
-        containerPort  = local.defaultPort
-        autoscaling    = var.configs.autoscaling
-        resources      = var.configs.resources
-        admin          = var.configs.admin
-        stats          = var.configs.stats
-        mysql          = var.configs.mysql
+        containerPort = local.defaultPort
+        autoscaling   = var.configs.autoscaling
+        resources     = var.configs.resources
+        app = {
+          readWriteSplit = var.configs.readWriteSplit
+          admin          = var.configs.admin
+          stats          = var.configs.stats
+          servers        = var.configs.servers
+          users          = var.configs.users
+          rules          = var.configs.rules
+          mysql          = var.configs.mysql
+          awsAurora      = var.configs.awsAurora
+        }
         podAnnotations = local.podAnnotations
         volumes        = local.volumes
         envFrom        = local.envFrom
@@ -37,7 +37,7 @@ module "custom_default_configs" {
         enabled    = var.configs.monitoring.enabled && var.configs.monitoring.method == "podMonitor"
         targetPort = var.configs.monitoring.targetPort
       }
-    },
-    var.extra_configs
+    }),
+    jsonencode({ proxysql = var.extra_configs })
   ]
 }

@@ -3,7 +3,9 @@
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.4 |
 
 ## Providers
 

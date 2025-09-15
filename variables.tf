@@ -277,7 +277,7 @@ variable "create_security_group" {
 
 variable "create_db_parameter_group" {
   type        = bool
-  default     = false
+  default     = true
   description = "Whether to create a database parameter group"
 }
 
@@ -346,7 +346,7 @@ variable "aurora_configs" {
     instances   = optional(any, {})               # Cluster instances configs
     autoscaling = optional(object({
       enabled                = optional(bool, false)                              # Whether autoscaling enabled
-      min_capacity           = optional(number, 0)                                # Min number of read replicas
+      min_capacity           = optional(number, 0)                                # Min number of read replicas, NOTE: at cluster creation if we have set >0 value(for example 1) sometime it do not create the replicas at this min and there is need to go to aws UI and edit/save without any change the auto-scale config to trigger the read replica creation with provided min size
       max_capacity           = optional(number, 2)                                # Max number of read replicas permitted
       predefined_metric_type = optional(string, "RDSReaderAverageCPUUtilization") # The metric type to scale on. Valid values are `RDSReaderAverageCPUUtilization` and `RDSReaderAverageDatabaseConnections`
       scale_in_cooldown      = optional(number, 300)                              # Cooldown in seconds before allowing further scaling operations after a scale in
@@ -411,4 +411,10 @@ variable "performance_insights_retention_period" {
   description = "Specifies the amount of time to retain performance insights data for. Defaults to 7 days if Performance Insights are enabled. Valid values are 7, month * 31 (where month is a number of months from 1-23), and 731. When using `advanced` database_insights_mode this value should be at least 465"
   type        = number
   default     = null
+}
+
+variable "enable_full_monitoring" {
+  type        = bool
+  default     = false
+  description = "Config allowing to enable all available monitoring toolings on database. This is just wrapper shortcut to not set performance insights and database queries monitoring all configs manually"
 }

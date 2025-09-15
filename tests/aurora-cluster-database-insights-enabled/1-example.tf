@@ -1,3 +1,4 @@
+# NOTE: there is better way to enable cluster monitoring via var.enable_full_monitoring=true passing, which sets all needed params
 module "this" {
   source = "../.."
 
@@ -29,7 +30,9 @@ module "this" {
     { "context" : "cluster", "name" : "net_read_timeout", "value" : "300" },
     { "context" : "cluster", "name" : "net_write_timeout", "value" : "300" },
     { "apply_method" : "pending-reboot", "context" : "cluster", "name" : "enforce_gtid_consistency", "value" : "ON" },
-    { "apply_method" : "pending-reboot", "context" : "cluster", "name" : "gtid-mode", "value" : "ON" }
+    { "apply_method" : "pending-reboot", "context" : "cluster", "name" : "gtid-mode", "value" : "ON" },
+    { "apply_method" : "pending-reboot", "name" : "performance_schema", "value" : "1" },
+    { "apply_method" : "pending-reboot", "context" : "cluster", "name" : "performance_schema", "value" : "1" }
   ]
 
 

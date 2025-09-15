@@ -34,19 +34,19 @@ module "db" {
   backup_window                   = var.backup_window
   enabled_cloudwatch_logs_exports = local.enabled_cloudwatch_logs_exports
 
-  performance_insights_enabled          = var.performance_insights_enabled
+  performance_insights_enabled          = local.performance_insights_enabled
   performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
-  performance_insights_retention_period = var.performance_insights_retention_period
-  database_insights_mode                = var.database_insights_mode
+  performance_insights_retention_period = local.performance_insights_retention_period
+  database_insights_mode                = local.database_insights_mode
 
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.skip_final_snapshot
   deletion_protection     = var.deletion_protection
 
-  create_monitoring_role                 = var.create_monitoring_role
-  monitoring_interval                    = var.monitoring_interval
+  create_monitoring_role                 = local.create_monitoring_role
+  monitoring_interval                    = local.monitoring_interval
   monitoring_role_name                   = var.monitoring_role_name
-  create_cloudwatch_log_group            = var.create_cloudwatch_log_group
+  create_cloudwatch_log_group            = local.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
 
   # DB parameter group configs
@@ -55,7 +55,7 @@ module "db" {
   parameter_group_name            = local.parameter_group_name
   parameter_group_use_name_prefix = false
   parameter_group_description     = "Custom parameter group for ${var.identifier}"
-  parameters                      = local.combined_parameters
+  parameters                      = local.instance_parameters
 
   create_db_option_group = var.create_db_option_group
   create_db_subnet_group = var.create_db_subnet_group
@@ -104,18 +104,18 @@ module "db_aurora" {
   preferred_backup_window         = var.backup_window
   enabled_cloudwatch_logs_exports = local.enabled_cloudwatch_logs_exports
 
-  performance_insights_enabled          = var.performance_insights_enabled
+  performance_insights_enabled          = local.performance_insights_enabled
   performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
-  performance_insights_retention_period = var.performance_insights_retention_period
-  database_insights_mode                = var.database_insights_mode
+  performance_insights_retention_period = local.performance_insights_retention_period
+  database_insights_mode                = local.database_insights_mode
 
   backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.skip_final_snapshot
   deletion_protection     = var.deletion_protection
 
-  create_monitoring_role                 = var.create_monitoring_role
-  monitoring_interval                    = var.monitoring_interval
-  create_cloudwatch_log_group            = var.create_cloudwatch_log_group
+  create_monitoring_role                 = local.create_monitoring_role
+  monitoring_interval                    = local.monitoring_interval
+  create_cloudwatch_log_group            = local.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
 
   replication_source_identifier = var.replication_source_identifier
@@ -126,15 +126,15 @@ module "db_aurora" {
   db_parameter_group_name            = local.parameter_group_name
   db_parameter_group_use_name_prefix = false
   db_parameter_group_description     = "Custom parameter group for ${var.identifier}"
-  db_parameter_group_parameters      = local.combined_parameters
+  db_parameter_group_parameters      = local.instance_parameters
 
   # DB cluster parameter group configs
-  create_db_cluster_parameter_group          = length(local.cluster_params_map) > 0
+  create_db_cluster_parameter_group          = local.create_db_parameter_group
   db_cluster_parameter_group_family          = local.parameter_group_family
   db_cluster_parameter_group_name            = "${local.parameter_group_name}-cluster"
   db_cluster_parameter_group_use_name_prefix = false
   db_cluster_parameter_group_description     = "Custom parameter group for DB cluster ${var.identifier}"
-  db_cluster_parameter_group_parameters      = local.cluster_params_map
+  db_cluster_parameter_group_parameters      = local.cluster_parameters
 
   create_db_subnet_group = var.create_db_subnet_group
   db_subnet_group_name   = var.db_subnet_group_name
@@ -152,10 +152,10 @@ module "db_aurora" {
   autoscaling_target_connections                = var.aurora_configs.autoscaling.target_connections
   serverlessv2_scaling_configuration            = var.aurora_configs.autoscaling.serverlessv2_scaling_configuration
   scaling_configuration                         = var.aurora_configs.autoscaling.scaling_configuration
-  cluster_performance_insights_enabled          = var.performance_insights_enabled
+  cluster_performance_insights_enabled          = local.performance_insights_enabled
   cluster_performance_insights_kms_key_id       = var.performance_insights_kms_key_arn
-  cluster_performance_insights_retention_period = var.performance_insights_retention_period
-  cluster_monitoring_interval                   = var.monitoring_interval
+  cluster_performance_insights_retention_period = local.performance_insights_retention_period
+  cluster_monitoring_interval                   = local.monitoring_interval
 
   manage_master_user_password = var.manage_master_user_password
   publicly_accessible         = var.publicly_accessible
