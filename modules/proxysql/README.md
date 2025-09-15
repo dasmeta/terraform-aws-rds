@@ -3,6 +3,7 @@
 ### NOTES:
 - the new version of this module brings lot of incompatible changes in params so when upgrading from module version <=1.4.4 to version >1.4.4 make sure to check module params
 - the maxConnections/max_connections parameters should be carefully set for based on instance types and proxysql replicas counts as in case if you have higher value set this can bring sql connection limit exceeded errors in client side
+- for upgrading from <=1.8.3 to >=1.9.0 version of proxysql check parameters placement as server/users/roles params got moved from inside var.configs.mysql.* params group to one level up. Also the naming of var.configs.mysql.* param items has been switched to proxysql native snake_case. The new 1.9.0 version bring several improvements for proxysql. The main change is aws aurora integration support with instance auto-discovery(check [./examples/basic-with-rds-auto-scale/](./examples/basic-with-rds-auto-scale/))
 
 ### basic example
 
@@ -18,17 +19,20 @@ module "proxysql" {
       password = "<proxysqladmin-pass-here>"
     }
     mysql = {
-      version = "8.0.37"
-      servers = [
-        {
-          hostname  = "mysql.localhost"
-        }
-      ]
-      users = [{
-        username = "root"
-        password = "<mysql-user-pass-here>"
-      }]
+      server_version = "8.0.37"
     }
+
+    servers = [
+      {
+        hostname  = "mysql.localhost"
+      }
+    ]
+
+    users = [{
+      username = "root"
+      password = "<mysql-user-pass-here>"
+    }]
+
   }
 }
 ```
