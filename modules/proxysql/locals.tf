@@ -57,6 +57,15 @@ locals {
       configMap = {
         name : var.name
       }
+    },
+    {
+      name      = "proxysql-cert"
+      mountPath = "/etc/proxysql/certs/ca-cert.pem"
+      subPath   = "ca-cert.pem"
+      readOnly  = true
+      configMap = {
+        name : "${var.name}-cert"
+      }
     }
   ]
 

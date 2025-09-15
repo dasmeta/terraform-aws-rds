@@ -85,7 +85,7 @@ module "cw_alerts" {
     },
     ],
     // This will get into in alarm state in case there are 5 slow queries in 5 minutes
-    var.slow_queries.enabled ? [
+    local.slow_queries.enabled ? [
       {
         name      = "DB: Excessive Slow Queries on Instance ${var.identifier}"
         source    = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
