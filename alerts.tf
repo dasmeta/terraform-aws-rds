@@ -83,6 +83,28 @@ module "cw_alerts" {
       equation  = try(var.alarms.custom_values.disk.equation, "lte")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
+    {
+      name   = "DB: High READ IOPS Utilization Alert on Instance ${var.identifier}"
+      source = "AWS/RDS/ReadIOPS"
+      filters = {
+        DBInstanceIdentifier = var.identifier
+      }
+      period    = try(var.alarms.custom_values.iops.read.period, "900")
+      threshold = try(var.alarms.custom_values.iops.read.threshold, "5000") # IOPS
+      equation  = try(var.alarms.custom_values.iops.read.equation, "gte")
+      statistic = try(var.alarms.custom_values.iops.read.statistic, "avg")
+    },
+    {
+      name   = "DB: High WRITE IOPS Utilization Alert on Instance ${var.identifier}"
+      source = "AWS/RDS/WriteIOPS"
+      filters = {
+        DBInstanceIdentifier = var.identifier
+      }
+      period    = try(var.alarms.custom_values.iops.write.period, "300")
+      threshold = try(var.alarms.custom_values.iops.write.threshold, "3000") # IOPS
+      equation  = try(var.alarms.custom_values.iops.write.equation, "gte")
+      statistic = try(var.alarms.custom_values.iops.write.statistic, "avg")
+    }
     ],
     // This will get into in alarm state in case there are 5 slow queries in 5 minutes
     local.slow_queries.enabled ? [
