@@ -92,7 +92,7 @@ module "cw_alerts" {
       period    = try(var.alarms.custom_values.iops.read.period, "900")
       threshold = try(var.alarms.custom_values.iops.read.threshold, "5000") # IOPS
       equation  = try(var.alarms.custom_values.iops.read.equation, "gte")
-      statistic = try(var.alarms.custom_values.iops.read.statistic, "sum")
+      statistic = try(var.alarms.custom_values.iops.read.statistic, "avg")
     },
     {
       name   = "DB: High WRITE IOPS Utilization Alert on Instance ${var.identifier}"
@@ -103,7 +103,7 @@ module "cw_alerts" {
       period    = try(var.alarms.custom_values.iops.write.period, "300")
       threshold = try(var.alarms.custom_values.iops.write.threshold, "3000") # IOPS
       equation  = try(var.alarms.custom_values.iops.write.equation, "gte")
-      statistic = try(var.alarms.custom_values.iops.write.statistic, "sum")
+      statistic = try(var.alarms.custom_values.iops.write.statistic, "avg")
     }
     ],
     // This will get into in alarm state in case there are 5 slow queries in 5 minutes
