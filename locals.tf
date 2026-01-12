@@ -107,7 +107,6 @@ locals {
   ## Merge prepared param sets with user parameters
   merged_instance_params_map = merge(
     local.slow_query_params_map,
-    local.enforce_client_tls_params_map,
     local.enable_full_monitoring_params_map,
     local.user_instance_params_map
   )
