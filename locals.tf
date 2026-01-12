@@ -57,7 +57,7 @@ locals {
       }
       client_tls_enforce = { params = [
         {
-          name  = "enforce_tls_postgres"
+          name  = "rds.force_ssl"
           value = "1"
         }
       ] }
