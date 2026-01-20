@@ -1,11 +1,12 @@
 module "this" {
   source = "../../"
 
-  name = "proxysql-basic"
+  name = "proxysql-basic-pgsql"
 
   configs = {
-    mysql = {
-      server_version = "8.0.37"
+    databaseType = "pgsql"
+    pgsql = {
+      server_version = "18.1"
     }
     admin = {
       user     = "proxysqladmin"
@@ -13,12 +14,13 @@ module "this" {
     }
     servers = [
       {
-        hostname = "mysql.localhost"
+        hostname = "postgresql.localhost"
+        port     = 5432
       }
     ]
     users = [{
-      username = "root"
-      password = "root"
+      username = "postgres"
+      password = "test"
     }]
 
   }

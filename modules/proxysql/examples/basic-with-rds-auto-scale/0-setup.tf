@@ -33,7 +33,7 @@ data "aws_subnets" "default" {
 
 locals {
   db_username = "testUser"
-  db_password = "<xxxxxxxxxxxxx>"
+  db_password = "test"
 }
 
 # create aurora cluster with auto scaling enabled
