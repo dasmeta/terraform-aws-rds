@@ -9,10 +9,13 @@ resource "helm_release" "proxysql" {
   values = [
     jsonencode({
       proxysql = {
+        image         = var.configs.image
+        pdb           = var.configs.pdb
         containerPort = local.defaultPort
         autoscaling   = var.configs.autoscaling
         resources     = var.configs.resources
         app = {
+          databaseType   = var.configs.databaseType
           readWriteSplit = var.configs.readWriteSplit
           admin          = var.configs.admin
           stats          = var.configs.stats
@@ -20,6 +23,7 @@ resource "helm_release" "proxysql" {
           users          = var.configs.users
           rules          = var.configs.rules
           mysql          = var.configs.mysql
+          pgsql          = var.configs.pgsql
           awsAurora      = var.configs.awsAurora
         }
         podAnnotations = local.podAnnotations
@@ -37,6 +41,7 @@ resource "helm_release" "proxysql" {
         enabled    = var.configs.monitoring.enabled && var.configs.monitoring.method == "podMonitor"
         targetPort = var.configs.monitoring.targetPort
       }
+      scheduledRestart = local.scheduledRestart
     }),
     jsonencode({ proxysql = var.extra_configs })
   ]

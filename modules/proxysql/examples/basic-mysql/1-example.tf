@@ -1,7 +1,7 @@
 module "this" {
   source = "../../"
 
-  name = "proxysql-with-service-monitor"
+  name = "proxysql-basic-mysql"
 
   configs = {
     mysql = {
@@ -11,7 +11,6 @@ module "this" {
       user     = "proxysqladmin"
       password = "<proxysqladmin-pass-here>"
     }
-
     servers = [
       {
         hostname = "mysql.localhost"
@@ -19,9 +18,7 @@ module "this" {
     ]
     users = [{
       username = "root"
-      password = "root"
+      password = "test"
     }]
-
-    monitoring = { enabled = true, method = "serviceMonitor" }
   }
 }

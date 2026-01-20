@@ -39,6 +39,9 @@ module "this" {
       enabled     = true
       domain_name = module.aurora_cluster.cluster_instance_endpoint_suffix
     }
+    scheduledRestart = { # enable scheduled restart to rollout restart proxysql deployment and cleanup scaled-down replicas endpoints (this is custom implemented workaround)
+      enabled = true
+    }
 
     readWriteSplit = true # we set this to have query rules to split read and write queries
     monitoring     = { enabled = true, method = "serviceMonitor" }

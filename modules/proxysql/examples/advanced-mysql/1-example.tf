@@ -1,7 +1,7 @@
 module "this" {
   source = "../../"
 
-  name = "proxysql-advanced"
+  name = "proxysql-advanced-mysql"
 
   configs = {
     mysql = {
@@ -10,7 +10,7 @@ module "this" {
       monitor = { # will monitor each server backend status
         enabled  = true
         username = "root"
-        password = "root"
+        password = "test"
       }
     }
     admin = {
@@ -33,7 +33,7 @@ module "this" {
 
     users = [{
       username = "root"
-      password = "root"
+      password = "test"
     }]
 
     rules = [
