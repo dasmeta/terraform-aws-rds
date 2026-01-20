@@ -116,14 +116,14 @@ variable "configs" {
       enabled     = optional(bool, false) # whether aurora proxysql integration is enabled
       domain_name = optional(string, "")  # the aurora instances endpoints suffix in form ".<some-uniq-hash>.<region>.rds.amazonaws.com"
     }), {})
-    scheduledRestart = optional(object({                        # used as workaround with aws rds aurora with autoscaling enabled to cleanup auto-discovered and removed/scaled-down instances endpoints, it do rollout restart of proxysql deployment based on specified schedule, for more info check here: https://github.com/sysown/proxysql/issues/3883#issuecomment-3753200770
-      enabled                 = optional(bool, false)           # whether scheduled restart is enabled
-      schedule                = optional(string, "00 02 * * *") # at 02:00 am UTC every day
-      timeZone                = optional(string, "Etc/UTC")     # the timezone of schedule
-      concurrencyPolicy       = optional(string, "Forbid")      # the k8s cronjob concurrency policy
-      startingDeadlineSeconds = optional(number, 60)            # the k8s cronjob deadline seconds
-      restartPolicy           = optional(string, "Never")       # the k8s cronjob restart policy
-      image = optional(object({                                 # job container image configs
+    scheduledRestart = optional(object({                           # used as workaround with aws rds aurora with autoscaling enabled to cleanup auto-discovered and removed/scaled-down instances endpoints, it do rollout restart of proxysql deployment based on specified schedule, for more info check here: https://github.com/sysown/proxysql/issues/3883#issuecomment-3753200770
+      enabled                 = optional(bool, false)              # whether scheduled restart is enabled
+      schedule                = optional(string, "00 02 */10 * *") # at 02:00 am UTC once every 10 day
+      timeZone                = optional(string, "Etc/UTC")        # the timezone of schedule
+      concurrencyPolicy       = optional(string, "Forbid")         # the k8s cronjob concurrency policy
+      startingDeadlineSeconds = optional(number, 60)               # the k8s cronjob deadline seconds
+      restartPolicy           = optional(string, "Never")          # the k8s cronjob restart policy
+      image = optional(object({                                    # job container image configs
         repository = optional(string, "dasmeta/awscli-kubectl")
         tag        = optional(string, "1.34.2")
       }), {})

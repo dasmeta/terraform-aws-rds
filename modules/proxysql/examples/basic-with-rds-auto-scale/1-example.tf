@@ -39,7 +39,7 @@ module "this" {
       enabled     = true
       domain_name = module.aurora_cluster.cluster_instance_endpoint_suffix
     }
-    scheduledRestart = { # enable scheduled restart to rollout restart proxysql deployment and cleanup scaled-down replicas endpoints (this is custom implemented workaround)
+    scheduledRestart = { # enable scheduled restart to rollout restart proxysql deployment by some schedule(right now once every 10 days) and cleanup scaled-down replicas endpoints (this is custom implemented workaround)
       enabled = true
     }
 
