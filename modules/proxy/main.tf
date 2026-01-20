@@ -14,7 +14,7 @@ module "db_password" {
 
 module "this" {
   source  = "terraform-aws-modules/rds-proxy/aws"
-  version = "3.1.0"
+  version = "4.2.1"
 
   name                   = var.name
   vpc_subnet_ids         = var.subnet_ids
