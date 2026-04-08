@@ -18,6 +18,7 @@ module "db" {
   max_allocated_storage       = var.max_allocated_storage
   storage_encrypted           = var.storage_encrypted
   storage_type                = var.storage_type
+  iops                        = var.iops
 
   db_name  = var.db_name
   username = var.db_username
@@ -88,6 +89,7 @@ module "db_aurora" {
   allocated_storage = var.allocated_storage
   storage_encrypted = var.storage_encrypted
   storage_type      = var.storage_type
+  iops              = var.iops
 
   database_name   = var.db_name
   master_username = var.db_username
