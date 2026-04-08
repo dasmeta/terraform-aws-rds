@@ -66,6 +66,12 @@ variable "storage_type" {
   description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), gp3, or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not"
 }
 
+variable "iops" {
+  description = "The amount of provisioned IOPS. Setting this implies a storage_type of 'io1' or `gp3`. See `notes` for limitations regarding this variable for `gp3`"
+  type        = number
+  default     = null
+}
+
 variable "engine" {
   type        = string
   default     = "mysql"
