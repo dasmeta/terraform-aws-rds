@@ -22,6 +22,12 @@ variable "allow_major_version_upgrade" {
   default     = false
 }
 
+variable "auto_minor_version_upgrade" {
+  description = "Indicates that minor engine upgrades are applied automatically during the maintenance window"
+  type        = bool
+  default     = true
+}
+
 variable "security_group_description" {
   type    = string
   default = "MySQL security group"
