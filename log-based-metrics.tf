@@ -1,6 +1,6 @@
 module "cloudwatch_metric_filters" {
   source  = "dasmeta/monitoring/aws//modules/cloudwatch-log-based-metrics"
-  version = "1.13.2"
+  version = "1.20.1"
 
   for_each = local.cloudwatch_log_groups
 
