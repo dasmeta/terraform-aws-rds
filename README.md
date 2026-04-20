@@ -85,13 +85,13 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_cloudwatch_metric_filters"></a> [cloudwatch\_metric\_filters](#module\_cloudwatch\_metric\_filters) | dasmeta/monitoring/aws//modules/cloudwatch-log-based-metrics | 1.13.2 |
 | <a name="module_cw_alerts"></a> [cw\_alerts](#module\_cw\_alerts) | dasmeta/monitoring/aws//modules/alerts | 1.3.5 |
 | <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | 6.12.0 |
@@ -103,7 +103,7 @@ No requirements.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_db_instance.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/db_instance) | data source |
 | [aws_ec2_instance_type.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -111,12 +111,13 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_alarms"></a> [alarms](#input\_alarms) | n/a | <pre>object({<br/>    enabled       = optional(bool, true)<br/>    sns_topic     = string<br/>    custom_values = optional(any, {})<br/>  })</pre> | n/a | yes |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | The allocated storage in gigabytes | `number` | `20` | no |
 | <a name="input_allow_major_version_upgrade"></a> [allow\_major\_version\_upgrade](#input\_allow\_major\_version\_upgrade) | Indicates that major version upgrades are allowed. Changing this parameter does not result in an outage and the change is asynchronously applied as soon as possible | `bool` | `false` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Specifies whether any database modifications are applied immediately, or during the next maintenance window | `bool` | `false` | no |
 | <a name="input_aurora_configs"></a> [aurora\_configs](#input\_aurora\_configs) | The aws rd aurora specific configurations | <pre>object({<br/>    engine_mode = optional(string, "provisioned") # The database engine mode. Valid values: `global`, `multimaster`, `parallelquery`, `provisioned`, `serverless`(serverless is deprecated)<br/>    instances   = optional(any, {})               # Cluster instances configs<br/>    autoscaling = optional(object({<br/>      enabled                = optional(bool, false)                              # Whether autoscaling enabled<br/>      min_capacity           = optional(number, 0)                                # Min number of read replicas, NOTE: at cluster creation if we have set >0 value(for example 1) sometime it do not create the replicas at this min and there is need to go to aws UI and edit/save without any change the auto-scale config to trigger the read replica creation with provided min size<br/>      max_capacity           = optional(number, 2)                                # Max number of read replicas permitted<br/>      predefined_metric_type = optional(string, "RDSReaderAverageCPUUtilization") # The metric type to scale on. Valid values are `RDSReaderAverageCPUUtilization` and `RDSReaderAverageDatabaseConnections`<br/>      scale_in_cooldown      = optional(number, 300)                              # Cooldown in seconds before allowing further scaling operations after a scale in<br/>      scale_out_cooldown     = optional(number, 300)                              # Cooldown in seconds before allowing further scaling operations after a scale out<br/>      target_cpu             = optional(number, 70)                               # CPU threshold which will initiate autoscaling<br/>      target_connections     = optional(number, 700)                              # Average number of connections threshold which will initiate autoscaling. Default value is 70% of db.r4/r5/r6g.large's default max_connections<br/>      schedules = optional(list(object({                                          # List of scheduled autoscale configs<br/>        name         = string                                                     # The name of scheduled scale<br/>        schedule     = string                                                     # The schedule time to apply auto scale, can be cron(min hour day month week-day year ), at(yyyy-mm-ddThh:mm:ss) or rate(value unit) formats<br/>        min_capacity = optional(number)                                           # If not set defaults to aurora_configs.autoscaling_min_capacity<br/>        max_capacity = optional(number)                                           # If not set defaults to aurora_configs.autoscaling_max_capacity<br/>        timezone     = optional(string, null)                                     # By default it uses UTC, available values can be found here: https://www.joda.org/joda-time/timezones.html<br/>      })), [])<br/><br/>      scaling_configuration              = optional(any, {}) # map of nested attributes with scaling properties. Only valid when `engine_mode` is set to `serverless`<br/>      serverlessv2_scaling_configuration = optional(any, {}) # for enabling serverless-2(the serverless-1(engine_mode=serverless, scaling_configuration is set) is deprecated), valid when `engine_mode` is set to `provisioned`<br/>    }), {})<br/>  })</pre> | `{}` | no |
+| <a name="input_auto_minor_version_upgrade"></a> [auto\_minor\_version\_upgrade](#input\_auto\_minor\_version\_upgrade) | Indicates that minor engine upgrades are applied automatically during the maintenance window | `bool` | `true` | no |
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | The days to retain backups for | `number` | `35` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | The daily time range (in UTC) during which automated backups are created if they are enabled. Example: '09:46-10:16'. Must not overlap with maintenance\_window | `string` | `"03:00-06:00"` | no |
 | <a name="input_cloudwatch_log_group_retention_in_days"></a> [cloudwatch\_log\_group\_retention\_in\_days](#input\_cloudwatch\_log\_group\_retention\_in\_days) | The number of days to retain CloudWatch logs for the DB instance | `number` | `30` | no |
@@ -179,7 +180,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_cluster_endpoint"></a> [cluster\_endpoint](#output\_cluster\_endpoint) | aurora cluster read/write endpoint |
 | <a name="output_cluster_instance_endpoint_suffix"></a> [cluster\_instance\_endpoint\_suffix](#output\_cluster\_instance\_endpoint\_suffix) | aurora cluster instances endpoint suffix part in form '.<cluster-uniq-hash>.<region-name>.rds.amazonaws.com' |
 | <a name="output_cluster_reader_endpoint"></a> [cluster\_reader\_endpoint](#output\_cluster\_reader\_endpoint) | aurora cluster read endpoint |

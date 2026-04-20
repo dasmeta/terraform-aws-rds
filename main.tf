@@ -14,6 +14,7 @@ module "db" {
   instance_class              = var.instance_class
   apply_immediately           = var.apply_immediately
   allow_major_version_upgrade = var.allow_major_version_upgrade
+  auto_minor_version_upgrade  = var.auto_minor_version_upgrade
   allocated_storage           = var.allocated_storage
   max_allocated_storage       = var.max_allocated_storage
   storage_encrypted           = var.storage_encrypted
@@ -83,8 +84,9 @@ module "db_aurora" {
   engine         = var.engine
   engine_version = var.engine_version
 
-  instance_class    = var.instance_class
-  apply_immediately = var.apply_immediately
+  instance_class             = var.instance_class
+  apply_immediately          = var.apply_immediately
+  auto_minor_version_upgrade = var.auto_minor_version_upgrade
 
   allocated_storage = var.allocated_storage
   storage_encrypted = var.storage_encrypted
