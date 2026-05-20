@@ -3,6 +3,7 @@
 ## NOTEs:
 - When creating rds with proxy, first create the rds only and then enable proxy and re-apply
 - When you have parameters that require instance restart(for example static params) make sure you did restart the instance
+- For Aurora PostgreSQL (`engine = "aurora-postgresql"`) with `enable_full_monitoring = true`, use module version **>= 1.11.2** (fixes empty `engine_family` plan error on versions before that).
 
 ## module upgrade guide
 - from <1.4.0 versions to >=1.4.0 version upgrade
