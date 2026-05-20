@@ -85,13 +85,13 @@ No requirements.
 ## Providers
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-| ---- | ------ | ------- |
+|------|--------|---------|
 | <a name="module_cloudwatch_metric_filters"></a> [cloudwatch\_metric\_filters](#module\_cloudwatch\_metric\_filters) | dasmeta/monitoring/aws//modules/cloudwatch-log-based-metrics | 1.13.2 |
 | <a name="module_cw_alerts"></a> [cw\_alerts](#module\_cw\_alerts) | dasmeta/monitoring/aws//modules/alerts | 1.3.5 |
 | <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | 6.12.0 |
@@ -103,7 +103,7 @@ No requirements.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [aws_db_instance.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/db_instance) | data source |
 | [aws_ec2_instance_type.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -111,7 +111,7 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_alarms"></a> [alarms](#input\_alarms) | n/a | <pre>object({<br/>    enabled       = optional(bool, true)<br/>    sns_topic     = string<br/>    custom_values = optional(any, {})<br/>  })</pre> | n/a | yes |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | The allocated storage in gigabytes | `number` | `20` | no |
 | <a name="input_allow_major_version_upgrade"></a> [allow\_major\_version\_upgrade](#input\_allow\_major\_version\_upgrade) | Indicates that major version upgrades are allowed. Changing this parameter does not result in an outage and the change is asynchronously applied as soon as possible | `bool` | `false` | no |
@@ -180,7 +180,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_cluster_endpoint"></a> [cluster\_endpoint](#output\_cluster\_endpoint) | aurora cluster read/write endpoint |
 | <a name="output_cluster_instance_endpoint_suffix"></a> [cluster\_instance\_endpoint\_suffix](#output\_cluster\_instance\_endpoint\_suffix) | aurora cluster instances endpoint suffix part in form '.<cluster-uniq-hash>.<region-name>.rds.amazonaws.com' |
 | <a name="output_cluster_reader_endpoint"></a> [cluster\_reader\_endpoint](#output\_cluster\_reader\_endpoint) | aurora cluster read endpoint |
