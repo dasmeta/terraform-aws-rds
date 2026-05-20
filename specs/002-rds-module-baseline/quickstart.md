@@ -50,8 +50,8 @@ module "rds" {
   instance_class = "db.r6g.large"
   allocated_storage = null
 
-  db_name     = "keycloak"
-  db_username = "keycloak"
+  db_name     = "db_name"
+  db_username = "db_username"
   db_password = var.db_password
 
   vpc_id     = var.vpc_id
