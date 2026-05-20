@@ -4,6 +4,9 @@
 - When creating rds with proxy, first create the rds only and then enable proxy and re-apply
 - When you have parameters that require instance restart(for example static params) make sure you did restart the instance
 - For Aurora PostgreSQL (`engine = "aurora-postgresql"`) with `enable_full_monitoring = true`, use module version **>= 1.11.2** (fixes empty `engine_family` plan error on versions before that).
+- `slow_queries.enabled` defaults to `true`; set `slow_queries = { enabled = false }` if you do not want slow-query log exports and related alarms.
+- For production, override defaults `engine = "mysql"` and `engine_version = "5.7.26"` with values appropriate for your workload and region.
+- CloudWatch alarms filter on `DBInstanceIdentifier = var.identifier`. For Aurora, that is usually the cluster identifier; per-instance alarm dimensions may differ from standalone RDS.
 
 ## module upgrade guide
 - from <1.4.0 versions to >=1.4.0 version upgrade
