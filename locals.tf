@@ -3,11 +3,13 @@ locals {
     postgres = "POSTGRESQL",
     mysql    = "MYSQL"
   }
-  is_aurora     = startswith(var.engine, "aurora")
-  engine_family = (endswith(var.engine, "mysql") || endswith(var.engine, "mariadb")) ? local.engine_families.mysql : (endswith(var.engine, "postgres") ? local.engine_families.postgres : "")
+  is_aurora = startswith(var.engine, "aurora")
+  # Match postgres, postgresql, and aurora-postgresql (endswith("postgres") misses *-postgresql).
+  is_postgres_engine = strcontains(var.engine, "postgres")
+  engine_family      = local.is_postgres_engine ? local.engine_families.postgres : ((endswith(var.engine, "mysql") || endswith(var.engine, "mariadb") || strcontains(var.engine, "mysql")) ? local.engine_families.mysql : "")
 
   // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
-  slow_queries_alert_threshold = var.engine == "postgres" ? 7 : 5
+  slow_queries_alert_threshold = local.is_postgres_engine ? 7 : 5
   parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(try(regex("postgres", var.engine), "")) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
 
   vpc_security_group_ids = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
