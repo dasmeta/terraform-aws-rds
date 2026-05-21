@@ -93,9 +93,9 @@ locals {
       local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports,
       local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports
     )) : log if !(local.is_aurora && log == "upgrade")
-  ] : distinct(concat(
-    local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports,
-    local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports
+    ] : distinct(concat(
+      local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports,
+      local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports
   ))
 
   # have set configs automatically based on enable_full_monitoring variable to not pass all this manually
