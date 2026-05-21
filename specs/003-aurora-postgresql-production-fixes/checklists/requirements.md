@@ -2,30 +2,30 @@
 
 **Purpose**: Validate fix spec before `/speckit.plan` and release  
 **Created**: 2026-05-20  
+**Updated**: 2026-05-20  
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
 
-- [x] Three production bugs identified with symptoms and root causes
-- [x] Scoped to `aurora-postgresql` + monitoring/alarms paths
-- [x] Implementation files and tests referenced
-- [x] Consumer rollout (Payconomy Keycloak) noted
+- [x] Four production bugs documented (engine family, upgrade log, aws_db_instance, TFC metric alarm)
+- [x] Payconomy Keycloak validation recorded (9 add / 10 destroy apply)
+- [x] Aurora vs standalone RDS behavior table
+- [x] Consumer YAML and migration notes
 
 ## Requirement Completeness
 
+- [x] FR-101–FR-109 map to `locals.tf`, `data.tf`, `alerts.tf`
 - [x] No [NEEDS CLARIFICATION] markers
-- [x] FR-101–FR-106 map to code changes in `locals.tf`, `data.tf`, `alerts.tf`
-- [x] Success criteria verifiable via `terraform validate` / plan
-- [x] Standalone RDS regression called out (SC-104)
-- [x] Release version guidance (>= 1.12.1)
+- [x] TFC expectation documented post-migration
+- [x] Release version **>= 1.12.1**
 
 ## Feature Readiness
 
 - [x] User stories map to `tests/aurora-postgresql-*`
-- [x] Workarounds vs fixed behavior documented
-- [x] Suitable input for `/speckit.plan` (release tag, CI, 002 sync)
+- [x] SC-103 reflects Keycloak apply success
+- [x] Suitable for `/speckit.plan` (tag 1.12.2, CI, 002 sync) or close as delivered
 
 ## Notes
 
-- Implementation exists in working tree; complete commit, tag, and update `002` edge cases when releasing.
-- Next: `/speckit.plan` for release checklist or `/speckit.tasks` for any remaining validation tasks.
+- BUG-4 fixed by FR-107/FR-108; validated on Payconomy prod workspace.
+- Next optional: `/speckit.plan` for release checklist only if tagging 1.12.2 separately from 1.12.1.
