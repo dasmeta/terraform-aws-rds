@@ -180,4 +180,7 @@ locals {
     ) ? coalesce(var.allocated_storage, 20) * 0.08 * 1024 * 1024 * 1024 : (
     data.aws_db_instance.database[0].allocated_storage * 0.08 * 1024 * 1024 * 1024
   )
+
+  alarms_metric_filters = local.is_aurora ? { DBClusterIdentifier = var.identifier } : { DBInstanceIdentifier = var.identifier }
+  alarms_resource_label = local.is_aurora ? "Cluster" : "Instance"
 }
