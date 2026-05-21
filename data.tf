@@ -5,11 +5,11 @@ data "aws_ec2_instance_type" "this" {
 data "aws_db_instance" "database" {
   db_instance_identifier = var.identifier
 
-  count = var.alarms.enabled ? 1 : 0
+  # Aurora cluster identifier is not a standalone DB instance identifier.
+  count = var.alarms.enabled && !local.is_aurora ? 1 : 0
 
   depends_on = [
-    module.db,
-    module.db_aurora
+    module.db
   ]
 }
 

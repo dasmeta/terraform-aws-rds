@@ -79,7 +79,7 @@ module "cw_alerts" {
         DBInstanceIdentifier = var.identifier
       }
       period    = try(var.alarms.custom_values.disk.period, "300")
-      threshold = try(var.alarms.custom_values.disk.threshold, data.aws_db_instance.database[0].allocated_storage * 0.08 * 1024 * 1024 * 1024) #8% of storage in Bytes
+      threshold = try(var.alarms.custom_values.disk.threshold, local.disk_alarm_default_threshold_bytes) # 8% of storage in bytes
       equation  = try(var.alarms.custom_values.disk.equation, "lte")
       statistic = try(var.alarms.custom_values.disk.statistic, "avg")
     },
@@ -121,6 +121,7 @@ module "cw_alerts" {
   )
 
   depends_on = [
-    module.db
+    module.db,
+    module.db_aurora,
   ]
 }

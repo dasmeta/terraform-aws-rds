@@ -87,11 +87,22 @@ locals {
     }
   }
 
+  # Aurora PostgreSQL does not support the "upgrade" CloudWatch log export (standalone RDS postgres does).
+  enable_full_monitoring_log_exports = local.engine_family == local.engine_families.postgres ? [
+    for log in distinct(concat(
+      local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports,
+      local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports
+    )) : log if !(local.is_aurora && log == "upgrade")
+    ] : distinct(concat(
+      local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports,
+      local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports
+  ))
+
   # have set configs automatically based on enable_full_monitoring variable to not pass all this manually
   slow_queries                          = merge(var.slow_queries, var.enable_full_monitoring ? local.prepared_configs.common.enable_full_monitoring.slow_queries : {})
   create_db_parameter_group             = var.enable_full_monitoring ? local.prepared_configs.common.enable_full_monitoring.create_db_parameter_group : local.slow_queries.enabled || var.enforce_client_tls ? true : var.create_db_parameter_group
   create_cloudwatch_log_group           = var.enable_full_monitoring ? local.prepared_configs.common.enable_full_monitoring.create_cloudwatch_log_group : var.create_cloudwatch_log_group
-  enabled_cloudwatch_logs_exports       = var.enable_full_monitoring ? distinct(concat(local.prepared_configs[local.engine_family].enable_full_monitoring.enabled_cloudwatch_logs_exports, local.prepared_configs.common.enable_full_monitoring.enabled_cloudwatch_logs_exports)) : distinct(concat(var.enabled_cloudwatch_logs_exports, local.slow_queries.enabled ? local.prepared_configs[local.engine_family].slow_query_enable.enabled_cloudwatch_logs_exports : []))
+  enabled_cloudwatch_logs_exports       = var.enable_full_monitoring ? local.enable_full_monitoring_log_exports : distinct(concat(var.enabled_cloudwatch_logs_exports, local.slow_queries.enabled ? local.prepared_configs[local.engine_family].slow_query_enable.enabled_cloudwatch_logs_exports : []))
   database_insights_mode                = var.enable_full_monitoring ? local.prepared_configs.common.enable_full_monitoring.database_insights_mode : var.database_insights_mode
   performance_insights_enabled          = var.enable_full_monitoring ? local.prepared_configs.common.enable_full_monitoring.performance_insights_enabled : var.performance_insights_enabled
   performance_insights_retention_period = var.enable_full_monitoring ? max(local.prepared_configs.common.enable_full_monitoring.performance_insights_retention_period, coalesce(var.performance_insights_retention_period, 0)) : var.performance_insights_retention_period
@@ -160,4 +171,13 @@ locals {
   )
 
   credentials_secret_arn = try(module.db[0].db_instance_master_user_secret_arn, module.db_aurora[0].cluster_master_user_secret.secret_arn, null)
+
+  # Standalone RDS disk alarms use the instance's allocated_storage. Aurora uses the cluster identifier
+  # (not a DB instance id), so avoid aws_db_instance lookup. Module arguments are still evaluated when
+  # cw_alerts count is 0, so never reference data.aws_db_instance.database[0] unless the data source exists.
+  disk_alarm_default_threshold_bytes = (
+    !var.alarms.enabled || local.is_aurora
+    ) ? coalesce(var.allocated_storage, 20) * 0.08 * 1024 * 1024 * 1024 : (
+    data.aws_db_instance.database[0].allocated_storage * 0.08 * 1024 * 1024 * 1024
+  )
 }

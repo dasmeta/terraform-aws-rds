@@ -1,21 +1,22 @@
+# Mirrors Aurora PostgreSQL workspaces (e.g. prod-keycloak-aurora) with alarms disabled.
+# Plan must not read aws_db_instance using the cluster identifier.
 module "this" {
   source = "../.."
 
   engine            = "aurora-postgresql"
   engine_version    = "17.7"
   instance_class    = "db.t4g.medium"
-  identifier        = "aurora-postgresql-full-monitoring"
+  identifier        = "prod-keycloak-aurora"
   allocated_storage = null
 
-  db_name     = "testDb"
-  db_username = "testUser"
+  db_name     = "keycloak"
+  db_username = "keycloak"
   db_password = "replace"
 
   vpc_id     = data.aws_vpc.default.id
   subnet_ids = data.aws_subnets.default.ids
 
-  enforce_client_tls     = true
-  enable_full_monitoring = true # validates upgrade log is not exported on aurora-postgresql
+  enforce_client_tls = true
 
   aurora_configs = {
     instances = {
@@ -24,17 +25,16 @@ module "this" {
   }
 
   slow_queries = {
-    enabled        = false
-    query_duration = 1
+    enabled = false
   }
 
   skip_final_snapshot   = true
   apply_immediately     = true
   create_security_group = true
-  security_group_name   = "aurora-postgresql-full-monitoring-sg"
+  security_group_name   = "aurora-postgresql-alarms-disabled-sg"
 
   alarms = {
     enabled   = false
-    sns_topic = "Default"
+    sns_topic = ""
   }
 }
