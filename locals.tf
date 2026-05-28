@@ -14,9 +14,9 @@ locals {
 
   vpc_security_group_ids = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled
-  cloudwatch_log_groups          = local.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/${local.is_aurora ? "cluster" : "instance"}/${var.identifier}/${type}" } : {}
+  cloudwatch_log_groups = local.slow_queries.enabled ? { for type in local.enabled_cloudwatch_logs_exports : type => "/aws/rds/${local.is_aurora ? "cluster" : "instance"}/${var.identifier}/${type}" } : {}
   # Include parameter group family (e.g. postgres15, postgres17) so major upgrades create a new name and avoid DBParameterGroupAlreadyExists.
-  parameter_group_name = local.create_db_parameter_group ? "${var.identifier}-${local.parameter_group_family}" : null
+  parameter_group_name           = local.create_db_parameter_group ? "${var.identifier}-${local.parameter_group_family}" : null
   postgres_slow_queries_duration = var.slow_queries.query_duration * 1000
   port                           = local.engine_family == local.engine_families.mysql ? 3306 : (local.engine_family == local.engine_families.postgres ? 5432 : var.port)
   prepared_configs = {
