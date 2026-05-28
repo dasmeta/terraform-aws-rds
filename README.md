@@ -5,9 +5,10 @@
 - When you have parameters that require instance restart(for example static params) make sure you did restart the instance
 - For Aurora PostgreSQL (`engine = "aurora-postgresql"`) with `enable_full_monitoring = true`, use module version **>= 1.11.2** (fixes empty `engine_family` plan error on versions before that; also omits unsupported `upgrade` log export on Aurora).
 - Aurora clusters: the module does not use `data.aws_db_instance` (cluster `identifier` is not a DB instance id). Disk alarm thresholds use `allocated_storage` when set, otherwise a safe default.
-- CloudWatch alarms: **Aurora** uses `DBClusterIdentifier = var.identifier` and omits the EBS IO balance alarm; **standalone RDS** uses `DBInstanceIdentifier`. Use version **>= 1.12.2** for Aurora `alarms.enabled = true` on Terraform Cloud.
 - `slow_queries.enabled` defaults to `true`; set `slow_queries = { enabled = false }` if you do not want slow-query log exports and related alarms.
 - For production, override defaults `engine = "mysql"` and `engine_version = "5.7.26"` with values appropriate for your workload and region.
+- CloudWatch alarms filter on `DBInstanceIdentifier = var.identifier`. For Aurora, that is usually the cluster identifier; per-instance alarm dimensions may differ from standalone RDS.
+- When `create_db_parameter_group = true`, the parameter group **name** is `${identifier}-${parameter_group_family}` (e.g. `myapp-postgres17` for PostgreSQL 17), not `${identifier}-${engine}`. This allows major PostgreSQL upgrades (15 → 17) without `DBParameterGroupAlreadyExists`.
 
 ## module upgrade guide
 - from <1.4.0 versions to >=1.4.0 version upgrade
@@ -20,6 +21,7 @@
   - the aurora cluster auto-scaling related configs have been moved under aurora_configs.autoscaling object so make sure to update old aurora_configs.autoscaling_* options into corresponding aurora_configs.autoscaling.* ones
   - there is new options in aurora_configs.autoscaling to manage auto scaling related configs and also new ability to define scheduled autoscaling
   - NOTE, that in case you have auto scaled instances created in cluster and want to destroy cluster via terraform code you have to scale down and remove those instances manually before applying cluster destruct code
+- **Parameter group naming** (versions including family suffix in the name): first apply after upgrade may create a new parameter group (e.g. `*-postgres17`), attach it to the instance/cluster, and remove the old `*-postgres15` group. Expect parameter group replacement in plan, not RDS instance replacement.
 
 
 ## How to use (more examples/tests can be found in [./tests](./tests) folder)

@@ -1,3 +1,3 @@
 {
-  "feature_directory": "specs/003-aurora-postgresql-production-fixes"
+  "feature_directory": "specs/004-postgresql-parameter-group-family-naming"
 }
