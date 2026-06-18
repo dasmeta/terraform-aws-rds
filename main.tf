@@ -1,6 +1,6 @@
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "6.12.0"
+  version = "7.1.0"
 
   count = local.is_aurora ? 0 : 1
 
