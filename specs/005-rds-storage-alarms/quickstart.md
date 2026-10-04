@@ -1,0 +1,3 @@
+# Verification and adoption
+Run `terraform init -backend=false`, `terraform validate`, `terraform test -filter=tests/storage-alarms.tftest.hcl`. Tests mock AWS and do not deploy.
+Prepare the v1.12.2 storage-only backport for immutable consumer adoption, avoiding latest-main parameter group renaming. Add a consumer moved block for the old storage alarm module key to its FreeLocalStorage key. Publish a draft consumer MR with regenerated source/provenance metadata. Inspect the live plan: storage alarm must update in place; only explicitly reviewed metadata tag updates are acceptable elsewhere. Approve apply, verify cluster Minimum and member metrics, and rerun Oneleet. Do not claim compliance remediation before that evidence exists.

@@ -172,15 +172,33 @@ locals {
 
   credentials_secret_arn = try(module.db[0].db_instance_master_user_secret_arn, module.db_aurora[0].cluster_master_user_secret.secret_arn, null)
 
-  # Standalone RDS disk alarms use the instance's allocated_storage. Aurora uses the cluster identifier
-  # (not a DB instance id), so avoid aws_db_instance lookup. Module arguments are still evaluated when
-  # cw_alerts count is 0, so never reference data.aws_db_instance.database[0] unless the data source exists.
-  disk_alarm_default_threshold_bytes = (
-    !var.alarms.enabled || local.is_aurora
-    ) ? coalesce(var.allocated_storage, 20) * 0.08 * 1024 * 1024 * 1024 : (
+  # Aurora local storage is independent of allocated cluster storage. The 5 GiB baseline can be
+  # tuned with alarms.custom_values.disk.threshold. Disabled standalone alarms have no DB lookup.
+  disk_alarm_default_threshold_bytes = local.is_aurora ? 5 * 1024 * 1024 * 1024 : (
+    !var.alarms.enabled ? coalesce(var.allocated_storage, 20) * 0.08 * 1024 * 1024 * 1024 :
     data.aws_db_instance.database[0].allocated_storage * 0.08 * 1024 * 1024 * 1024
   )
 
   alarms_metric_filters = local.is_aurora ? { DBClusterIdentifier = var.identifier } : { DBInstanceIdentifier = var.identifier }
   alarms_resource_label = local.is_aurora ? "Cluster" : "Instance"
+
+  # FreeLocalStorage is unavailable for Aurora Serverless. Mixed clusters still monitor their
+  # provisioned members; cluster dimensions also include readers created by Aurora autoscaling.
+  storage_alarm_enabled = !local.is_aurora || (
+    var.aurora_configs.engine_mode != "serverless" && anytrue([
+      for instance in var.aurora_configs.instances :
+      try(coalesce(instance.instance_class, var.instance_class), var.instance_class) != "db.serverless"
+    ])
+  )
+
+  storage_alarm = {
+    name      = "DB: Low Free Storage Space on ${local.alarms_resource_label} ${var.identifier}"
+    source    = local.is_aurora ? "AWS/RDS/FreeLocalStorage" : "AWS/RDS/FreeStorageSpace"
+    filters   = local.alarms_metric_filters
+    period    = try(var.alarms.custom_values.disk.period, "300")
+    threshold = try(var.alarms.custom_values.disk.threshold, local.disk_alarm_default_threshold_bytes)
+    equation  = try(var.alarms.custom_values.disk.equation, "lte")
+    # Minimum detects the least-free Aurora member instead of averaging it with healthy members.
+    statistic = try(var.alarms.custom_values.disk.statistic, local.is_aurora ? "min" : "avg")
+  }
 }
