@@ -16,3 +16,5 @@ Validated 2026-10-05 using Terraform 1.15.7 and cached AWS provider 5.100.0. Ini
 Limits: positive filters use synthetic log fixtures. Retained90-day PostgreSQL scan had no actual duration entries. MySQL/MariaDB count assumes normal one-query CloudWatch event boundaries and server slow-log eligibility; extra logging modes/session overrides must be reviewed. Production apply, consumer state migration, notifications and real metric observations are not performed or claimed.
 
 Rollout evidence required: exact consumer plan with old/new alarm module key moved, no same-name destroy/create, no unrelated DB changes; recorded production approval; post-apply state/count/SNS checks. No release version has been published.
+
+Delivery: [PR #69](https://github.com/dasmeta/terraform-aws-rds/pull/69) targets main from 006-slow-query-count. DS-13434 was linked and transitioned to In Review; validation and remaining rollout boundaries were recorded in Jira comments 76914 (DS-13434) and 76915 (DS-13433).

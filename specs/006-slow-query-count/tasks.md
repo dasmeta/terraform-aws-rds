@@ -21,7 +21,7 @@ Input: [spec.md](spec.md), [plan.md](plan.md), research, contract and quickstart
 
 ## Phase 5: Closeout
 - [x] T010 Run validate, touched-file fmt, native tests, fixture API tests and diff review; record evidence in specs/006-slow-query-count/validation.md.
-- [ ] T011 Commit, publish branch, open PR and link DS-13434; update Jira with real validation and remaining rollout boundaries.
+- [x] T011 Commit, publish branch, open PR and link DS-13434; update Jira with real validation and remaining rollout boundaries.
 
 ## Dependencies and execution
 T001 -> T002 -> T003 -> T004/T005 -> T006/T007 -> T008/T009 -> T010 -> T011. US2 depends on the count implementation but independently checks compatibility. Fixture/documentation work can be independent once definitions settle; no additional delegated code work is needed.
