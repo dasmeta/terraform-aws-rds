@@ -92,17 +92,7 @@ module "cw_alerts" {
         statistic = try(var.alarms.custom_values.ebs.IObalance.statistic, "avg")
       },
     ],
-    local.slow_queries.enabled ? [
-      {
-        name      = "DB: Excessive Slow Queries on ${local.alarms_resource_label} ${var.identifier}"
-        source    = "RDSLogBasedMetrics/${var.identifier}-RDSSlowQueries"
-        filters   = {}
-        period    = try(var.alarms.custom_values.slow-queries.period, "300")
-        threshold = try(var.alarms.custom_values.slow-queries.threshold, local.slow_queries_alert_threshold)
-        equation  = try(var.alarms.custom_values.slow-queries.equation, "gte")
-        statistic = try(var.alarms.custom_values.slow-queries.statistic, "count")
-      }
-    ] : []
+    local.slow_queries.enabled ? [local.slow_query_alarm] : []
   )
 
   depends_on = [

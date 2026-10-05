@@ -5,14 +5,14 @@ module "cloudwatch_metric_filters" {
   for_each = local.cloudwatch_log_groups
 
   log_group_name = each.value
-  metrics_patterns = [
+  metrics_patterns = concat([
     {
       name    = "${var.identifier}-RDSSlowQueries"
       pattern = strcontains(var.engine, "postgres") ? "[day, time, log=\"*:LOG:\", containsDuration=\"duration:\", duration=*, unit, statement=\"statement:*\"]" : "[start, time=\"Time:\", date, separatorOne, userHost, username, separatorTwo, ip, id, idNumber, separatorThree, queryTime, duration, ...]"
       value   = "$duration"
       unit    = strcontains(var.engine, "postgres") ? "Milliseconds" : "Seconds"
     }
-  ]
+  ], each.key == local.slow_query_count_log_type ? [local.slow_query_count_metric] : [])
   metrics_namespace = "RDSLogBasedMetrics"
 
   depends_on = [

@@ -8,9 +8,32 @@ locals {
   is_postgres_engine = strcontains(var.engine, "postgres")
   engine_family      = local.is_postgres_engine ? local.engine_families.postgres : ((endswith(var.engine, "mysql") || endswith(var.engine, "mariadb") || strcontains(var.engine, "mysql")) ? local.engine_families.mysql : "")
 
-  // SampleCount statistic adds 2 to the real count in case the engine is postgres, so 7 means 5 + 2
-  slow_queries_alert_threshold = local.is_postgres_engine ? 7 : 5
-  parameter_group_family       = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(try(regex("postgres", var.engine), "")) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
+  # Count actual slow-query records, without compensating for default zero samples.
+  slow_queries_alert_threshold = 5
+  slow_query_count_log_type    = local.is_postgres_engine ? "postgresql" : "slowquery"
+  slow_query_count_metric = {
+    name = "${var.identifier}-RDSSlowQueryCount"
+    pattern = local.is_postgres_engine ? (
+      "[day, time, log=\"*:LOG:\", marker=\"duration:\", duration >= ${local.postgres_slow_queries_duration}, unit=\"ms\", statement=\"statement:*\" || statement=\"execute*\"]"
+      ) : (
+      # Match one Query_time header in either a separate or multiline slow-log event.
+      # MySQL/MariaDB apply long_query_time when writing the slow log.
+      "%^#\\sQuery_time:\\s[0-9]+\\.[0-9]+\\s+Lock_time:|\\n#\\sQuery_time:\\s[0-9]+\\.[0-9]+\\s+Lock_time:%"
+    )
+    value         = "1"
+    default_value = "0"
+    unit          = "Count"
+  }
+  slow_query_alarm = {
+    name      = "DB: Excessive Slow Queries on ${local.alarms_resource_label} ${var.identifier}"
+    source    = "RDSLogBasedMetrics/${local.slow_query_count_metric.name}"
+    filters   = {}
+    period    = try(var.alarms.custom_values.slow-queries.period, "300")
+    threshold = try(var.alarms.custom_values.slow-queries.threshold, local.slow_queries_alert_threshold)
+    equation  = try(var.alarms.custom_values.slow-queries.equation, "gte")
+    statistic = try(var.alarms.custom_values.slow-queries.statistic, "sum")
+  }
+  parameter_group_family = format("%s%s", var.engine, (var.engine == "mariadb" ? regex("\\d+\\.\\d+", var.engine_version) : (length(try(regex("postgres", var.engine), "")) > 0 ? regex("\\d+", var.engine_version) : var.engine_version)))
 
   vpc_security_group_ids = var.create_security_group ? [module.security_group[0].security_group_id] : var.vpc_security_group_ids
   # Cloudwatch log groups from which log based metrics are created in case slow queries are enabled

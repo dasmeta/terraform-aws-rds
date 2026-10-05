@@ -1,0 +1,106 @@
+{
+  "postgres": [
+    {
+      "name": "simple_at_boundary",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  statement: SELECT 1;",
+      "matches": true
+    },
+    {
+      "name": "unnamed_execute",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  execute <unnamed>: SELECT 1;",
+      "matches": true
+    },
+    {
+      "name": "named_execute",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  execute prepared: SELECT 1;",
+      "matches": true
+    },
+    {
+      "name": "multiline_statement",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  statement: SELECT\n1;",
+      "matches": true
+    },
+    {
+      "name": "below_boundary",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {below_threshold} ms  statement: SELECT 1;",
+      "matches": false
+    },
+    {
+      "name": "parse_phase",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  parse <unnamed>: SELECT 1;",
+      "matches": false
+    },
+    {
+      "name": "bind_phase",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms  bind <unnamed>: SELECT 1;",
+      "matches": false
+    },
+    {
+      "name": "duration_without_query",
+      "message": "2026-10-05 01:00:00 UTC:10.0.0.1(12345):app@example:[123]:LOG:  duration: {threshold} ms",
+      "matches": false
+    },
+    {
+      "name": "reload",
+      "message": "2026-10-05 01:00:09 UTC::@:[456]:LOG:  received SIGHUP, reloading configuration files",
+      "matches": false
+    },
+    {
+      "name": "config_warning",
+      "message": "2026-10-05 01:00:09 UTC::@:[456]:LOG:  parameter \"unix_socket_permissions\" cannot be changed without restarting the server",
+      "matches": false
+    },
+    {
+      "name": "checkpoint",
+      "message": "2026-10-05 01:00:09 UTC::@:[456]:LOG:  checkpoint complete: wrote 5 buffers",
+      "matches": false
+    }
+  ],
+  "mysql": [
+    {
+      "name": "separate_header",
+      "message": "# Query_time: 3.500000  Lock_time: 0.000001 Rows_sent: 1  Rows_examined: 1",
+      "matches": true
+    },
+    {
+      "name": "full_mysql_record",
+      "message": "# Time: 2026-10-05T01:00:00.000000Z\n# User@Host: example[example] @ [10.0.0.1]  Id: 12\n# Query_time: 3.500000  Lock_time: 0.000001 Rows_sent: 1  Rows_examined: 1\nSET timestamp=1791162000;\nSELECT\n1;",
+      "matches": true
+    },
+    {
+      "name": "full_mariadb_record",
+      "message": "# Time: 261005  1:00:00\n# User@Host: example[example] @ [10.0.0.1]\n# Thread_id: 12  Schema: example  QC_hit: No\n# Query_time: 3.500000  Lock_time: 0.000001 Rows_sent: 1  Rows_examined: 1\n# Rows_affected: 0  Bytes_sent: 0\nSET timestamp=1791162000;\nSELECT 1;",
+      "matches": true
+    },
+    {
+      "name": "time_only",
+      "message": "# Time: 2026-10-05T01:00:00.000000Z",
+      "matches": false
+    },
+    {
+      "name": "user_only",
+      "message": "# User@Host: example[example] @ [10.0.0.1]  Id: 12",
+      "matches": false
+    },
+    {
+      "name": "timestamp_only",
+      "message": "SET timestamp=1791162000;",
+      "matches": false
+    },
+    {
+      "name": "sql_only",
+      "message": "SELECT 1;",
+      "matches": false
+    },
+    {
+      "name": "quoted_header_text",
+      "message": "SELECT \"# Query_time: 3.500000  Lock_time: 0.000001\";",
+      "matches": false
+    },
+    {
+      "name": "duration_only",
+      "message": "# Query_time: 3.500000",
+      "matches": false
+    }
+  ]
+}
