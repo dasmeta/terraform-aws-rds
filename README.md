@@ -24,7 +24,100 @@
 - **Parameter group naming** (versions including family suffix in the name): first apply after upgrade may create a new parameter group (e.g. `*-postgres17`), attach it to the instance/cluster, and remove the old `*-postgres15` group. Expect parameter group replacement in plan, not RDS instance replacement.
 
 
-## How to use (more examples/tests can be found in [./tests](./tests) folder)
+## Slow-query count monitoring
+
+The slow-query alarm evaluates `Sum` of `${identifier}-RDSSlowQueryCount` in
+`RDSLogBasedMetrics`: five qualifying records in 300 seconds by default. Each
+matching log event contributes `1`; unrelated events contribute the default `0`.
+The existing `${identifier}-RDSSlowQueries` duration metric, filter and units are
+preserved for dashboards. Changing only its statistic to `Sum` would measure
+duration, not query count.
+
+PostgreSQL counts completed `statement:` and named/unnamed `execute` records at
+or above `slow_queries.query_duration` seconds (converted to milliseconds).
+Parse/Bind phase records and configuration/checkpoint messages are excluded.
+MySQL/MariaDB count `Query_time` headers, including separate header events and
+multiline records. Their server-side `long_query_time` setting defines eligibility;
+additional logging modes such as `log_queries_not_using_indexes` and session
+overrides can include shorter statements. Review those settings before adopting.
+The count filter is added only to `postgresql` or `slowquery`, not auxiliary exports.
+
+One count is emitted per matching CloudWatch event. If an exporter packs multiple
+query headers into one event, the count underreports; validate actual event
+boundaries for your exporter. SQL text imitating a complete header on its own
+line cannot be distinguished by the MySQL/MariaDB header filter. Positive filter
+coverage uses synthetic fixtures; it does not replace production log validation.
+See the [independent usage example](examples/slow-query-count).
+
+Existing `alarms.custom_values.slow-queries` period, threshold, equation and
+statistic overrides retain precedence, now against the count metric. Review
+duration-based overrides when upgrading. An explicit `statistic = "count"`
+still means `SampleCount` and can count zero samples; use `"sum"` to count queries.
+
+### Upgrade state migration
+
+This is a breaking upgrade and requires a major release. Consumers must add the
+state migration below before applying and review their slow-query overrides.
+
+The PostgreSQL default threshold changes from `7` to `5`: the old `+2` compensation
+for default samples is removed. The CloudWatch alarm name and SNS actions remain,
+but the shared alarm renderer's Terraform key includes the metric source. Add a
+consumer `moved` block before applying an upgrade so the existing alarm updates
+in place. For a module call named `database`, identifier `example`, standalone RDS:
+
+```hcl
+moved {
+  from = module.database.module.cw_alerts[0].module.cloudwatch_metric-alarm["DB: Excessive Slow Queries on Instance example-RDSLogBasedMetrics/example-RDSSlowQueries"]
+  to   = module.database.module.cw_alerts[0].module.cloudwatch_metric-alarm["DB: Excessive Slow Queries on Instance example-RDSLogBasedMetrics/example-RDSSlowQueryCount"]
+}
+```
+
+Substitute the actual module path and identifier; Aurora uses `Cluster` instead
+of `Instance`. Keep the migration for older consumers. Reject a plan that destroys
+and recreates the same alarm name: concurrent operations can delete the updated
+alarm. The reviewed plan should add one count filter and update that alarm, with
+no DB resource or logging-setting changes from this fix. Inspect unrelated changes
+from other module versions separately. Production apply requires approval of the
+exact consumer plan. Verify count datapoints, alarm state and SNS notification
+delivery afterward. Count metrics are not backfilled. Rollback requires the prior
+version pin and a reviewed reverse state migration.
+
+### Local verification
+
+Use Terraform >=1.7 to run the mocked tests (this does not raise consumer version
+requirements). Python 3 and AWS CLI with `logs:TestMetricFilter` are needed for
+the optional AWS parser tests; these tests publish no logs or metrics.
+
+```sh
+terraform init -backend=false
+terraform validate
+terraform fmt -check alerts.tf locals.tf log-based-metrics.tf tests/slow-query-count.tftest.hcl examples/slow-query-count
+terraform test -filter=tests/slow-query-count.tftest.hcl
+python3 tests/verify-slow-query-filters.py --offline
+python3 tests/check-alarm-plan.py
+python3 tests/verify-slow-query-filters.py --profile <read-only-profile> --region eu-central-1
+```
+
+The verifier checks actual rendered filter/metric/alarm resources, including
+duration compatibility, overrides and auxiliary exports. `--plans-json <path>`
+can reuse output from `terraform test -json -verbose` instead of rerunning tests.
+The `slow-query-count` job in Terraform Test runs the mocked plans and rendered
+resource verification without credentials and fails on regressions. Existing PR
+workflows also include Pre-commit and TFLint; the older general Terraform Test job
+allows failure. AWS parser fixture tests remain an explicit read-only check.
+
+`terraform test` alone does not check whether rendered metric query account IDs
+are known during planning. Run both Python checkers above for complete local
+verification; `check-alarm-plan.py` detects the deferred-account-ID regression.
+
+Alarms may be created before database metrics are available. The alarm module
+uses metric identifiers from inputs and does not wait for unrelated database
+changes. This keeps metric query account IDs known during planning and avoids
+AWS provider inconsistent-final-plan errors. Actual value references retain
+their Terraform dependencies, including standalone storage-capacity lookups.
+The blocking job also runs the pending-database account-ID regression.
+
+## How to use (examples are in [./examples](./examples), verification cases in [./tests](./tests))
 
 ### Case 1. Create Security group and create RDS
 
