@@ -56,6 +56,9 @@ still means `SampleCount` and can count zero samples; use `"sum"` to count queri
 
 ### Upgrade state migration
 
+This is a breaking upgrade and requires a major release. Consumers must add the
+state migration below before applying and review their slow-query overrides.
+
 The PostgreSQL default threshold changes from `7` to `5`: the old `+2` compensation
 for default samples is removed. The CloudWatch alarm name and SNS actions remain,
 but the shared alarm renderer's Terraform key includes the metric source. Add a
@@ -102,6 +105,10 @@ The `slow-query-count` job in Terraform Test runs the mocked plans and rendered
 resource verification without credentials and fails on regressions. Existing PR
 workflows also include Pre-commit and TFLint; the older general Terraform Test job
 allows failure. AWS parser fixture tests remain an explicit read-only check.
+
+`terraform test` alone does not check whether rendered metric query account IDs
+are known during planning. Run both Python checkers above for complete local
+verification; `check-alarm-plan.py` detects the deferred-account-ID regression.
 
 Alarms may be created before database metrics are available. The alarm module
 uses metric identifiers from inputs and does not wait for unrelated database

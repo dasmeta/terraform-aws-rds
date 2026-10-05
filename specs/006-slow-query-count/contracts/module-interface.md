@@ -1,3 +1,0 @@
-# Module interface and upgrade contract
-
-No new required/optional inputs or outputs; existing alarms and slow_queries objects remain. query_duration is seconds. Keep duration telemetry. Default alarm evaluates count metric with sum/5/300s/gte. Explicit overrides retain precedence. Effective slow_queries.enabled governs filter creation; alarms.enabled separately governs alarms. MySQL/MariaDB eligible records are those written to the slow log under server settings; consumers must review extra logging modes and session overrides. Upgrades require the documented alarm state-address migration; same-name destroy/create is not safe.
