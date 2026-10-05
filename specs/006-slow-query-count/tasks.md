@@ -33,5 +33,5 @@ Deliver a focused shared-module correction and reviewable PR. Release/adoption/a
 - [x] T012 Import #70's pending-database regression and reproduce unknown alarm account IDs on #69.
 - [x] T013 Remove only the blanket cw_alerts database dependency; document planning behavior and add the regression to blocking CI.
 - [x] T014 Verify both regression suites, validate, formatting and unchanged database configuration; review the combined change.
-- [ ] T015 Publish the combined branch, rewrite #69's title/body, verify CI, then close #70 as superseded and update Jira links.
+- [x] T015 Publish the combined branch, rewrite #69's title/body, verify CI, then close #70 as superseded and update Jira links.
 Execution: T012 -> T013 -> T014 -> T015. Reuse the approved Spec Kit implementation path; no new feature bootstrap or unrelated storage changes.

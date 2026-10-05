@@ -28,3 +28,5 @@ At the operator's request, incorporate PR #70's alarm-planning correction into #
 - Independent combined-change review found no critical, important or minor defects and confirmed the original #70 source patch is preserved.
 - Blocking CI now runs both regression checkers. The existing local terraform_docs hook exception remains limited to avoiding unrelated generated README separator changes.
 PR #70's original branch/commit must remain available because the separate consumer archive pin references that backport; closing the redundant PR does not change that pin or apply infrastructure.
+
+Delivery verification: combined code commit bdc6284eda299219109cf3fb7f2725b1eb5ca851 passed all GitHub checks, including both blocking regression suites. PR #69's title/body cover both fixes and Jira tickets. PR #70 was closed as superseded; mergedAt is null and its original branch still points to fcffb42ddef71a14a7e717d5cea09bd558f427d7. Jira comments 76932 (DS-13434) and 76933 (DS-13398), plus the existing CloudBrowser Documentation 240, record the combined delivery and unchanged consumer/deployment boundaries. PR #69 remains open; no merge or apply.
