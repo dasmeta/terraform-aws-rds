@@ -28,3 +28,10 @@ T001 -> T002 -> T003 -> T004/T005 -> T006/T007 -> T008/T009 -> T010 -> T011. US2
 
 ## Strategy
 Deliver a focused shared-module correction and reviewable PR. Release/adoption/apply and runtime observation are outside this task. Never apply the mocked plans or deliberately generate production slow queries.
+
+## Combined PR integration (2026-10-05)
+- [x] T012 Import #70's pending-database regression and reproduce unknown alarm account IDs on #69.
+- [x] T013 Remove only the blanket cw_alerts database dependency; document planning behavior and add the regression to blocking CI.
+- [x] T014 Verify both regression suites, validate, formatting and unchanged database configuration; review the combined change.
+- [ ] T015 Publish the combined branch, rewrite #69's title/body, verify CI, then close #70 as superseded and update Jira links.
+Execution: T012 -> T013 -> T014 -> T015. Reuse the approved Spec Kit implementation path; no new feature bootstrap or unrelated storage changes.

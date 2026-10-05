@@ -91,6 +91,7 @@ terraform validate
 terraform fmt -check alerts.tf locals.tf log-based-metrics.tf tests/slow-query-count.tftest.hcl examples/slow-query-count
 terraform test -filter=tests/slow-query-count.tftest.hcl
 python3 tests/verify-slow-query-filters.py --offline
+python3 tests/check-alarm-plan.py
 python3 tests/verify-slow-query-filters.py --profile <read-only-profile> --region eu-central-1
 ```
 
@@ -101,6 +102,13 @@ The `slow-query-count` job in Terraform Test runs the mocked plans and rendered
 resource verification without credentials and fails on regressions. Existing PR
 workflows also include Pre-commit and TFLint; the older general Terraform Test job
 allows failure. AWS parser fixture tests remain an explicit read-only check.
+
+Alarms may be created before database metrics are available. The alarm module
+uses metric identifiers from inputs and does not wait for unrelated database
+changes. This keeps metric query account IDs known during planning and avoids
+AWS provider inconsistent-final-plan errors. Actual value references retain
+their Terraform dependencies, including standalone storage-capacity lookups.
+The blocking job also runs the pending-database account-ID regression.
 
 ## How to use (examples are in [./examples](./examples), verification cases in [./tests](./tests))
 

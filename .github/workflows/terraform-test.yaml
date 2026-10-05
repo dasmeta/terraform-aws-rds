@@ -17,6 +17,7 @@ jobs:
       - run: terraform init -backend=false -input=false
       - run: terraform validate
       - run: python3 tests/verify-slow-query-filters.py --offline
+      - run: python3 tests/check-alarm-plan.py
 
   terraform-test:
     runs-on: ubuntu-latest

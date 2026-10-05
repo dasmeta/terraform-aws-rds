@@ -52,3 +52,10 @@ Fractional duration thresholds; exact boundary durations; named/unnamed prepared
 
 ## Assumptions
 The module's old PostgreSQL threshold comment establishes intended default of five actual queries. Server logging defines slow-query eligibility for engine formats whose CloudWatch filter cannot compare extracted durations. Runtime logging overrides must be reconciled by consumers. Source preparation and PR creation are authorized; production applies require separate exact-plan approval.
+
+## Combined PR scope (2026-10-05)
+The operator requested combining PRs #69 and #70 into one review PR. Retain #69 targeting main and incorporate the approved DS-13398 alarm-planning correction from #70. Its original storage-backport base is not part of this integration.
+- FR-009: Alarm metric query account IDs remain known during planning while database resources have pending creation or changes; remove the blanket database-module dependency and retain actual expression dependencies.
+- FR-010: Preserve all existing database configuration and alarm definitions, except the already-approved slow-query count behavior.
+- Acceptance: a mocked Aurora plan with pending database creation resolves all eight existing metric alarms' account IDs; the same test fails before removing the blanket dependency.
+- Delivery: one combined PR links DS-13434 and DS-13398; close #70 as superseded only after its fix is present and validated on #69. No merge to main or production apply is requested.

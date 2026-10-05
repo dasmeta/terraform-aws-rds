@@ -18,3 +18,13 @@ Limits: positive filters use synthetic log fixtures. Retained90-day PostgreSQL s
 Rollout evidence required: exact consumer plan with old/new alarm module key moved, no same-name destroy/create, no unrelated DB changes; recorded production approval; post-apply state/count/SNS checks. No release version has been published.
 
 Delivery: [PR #69](https://github.com/dasmeta/terraform-aws-rds/pull/69) targets main from 006-slow-query-count. DS-13434 was linked and transitioned to In Review; validation and remaining rollout boundaries were recorded in Jira comments 76914 (DS-13434) and 76915 (DS-13433).
+
+## Combined PR integration (2026-10-05)
+At the operator's request, incorporate PR #70's alarm-planning correction into #69, preserving #69's main base. Do not import the storage-backport base or modify the consumer's immutable source pin.
+- Imported pending-Aurora regression failed before the dependency fix on unknown metric query account IDs.
+- After removing only cw_alerts' blanket database-module dependency, two pending-Aurora plans pass: all eight existing alarm IDs known with slow queries disabled, and all nine including the new count alarm known with slow queries enabled.
+- All ten slow-query rendered-plan cases pass again on the combined source; the existing 31 parser fixtures are retained, with unchanged filter patterns.
+- terraform validate, touched-file fmt and git diff --check pass. Database source, inputs, outputs and nested modules are unchanged by the integration. Standalone capacity lookup retains its expression/explicit dependencies.
+- Independent combined-change review found no critical, important or minor defects and confirmed the original #70 source patch is preserved.
+- Blocking CI now runs both regression checkers. The existing local terraform_docs hook exception remains limited to avoiding unrelated generated README separator changes.
+PR #70's original branch/commit must remain available because the separate consumer archive pin references that backport; closing the redundant PR does not change that pin or apply infrastructure.
