@@ -97,8 +97,7 @@ module "cw_alerts" {
     ] : []
   )
 
-  depends_on = [
-    module.db,
-    module.db_aurora,
-  ]
+  # Metric identifiers come from inputs; alarms can exist before their metrics.
+  # A module-wide DB dependency would defer caller identity and make metric_query
+  # account IDs unknown during planning, causing inconsistent final plans.
 }

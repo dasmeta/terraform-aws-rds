@@ -16,3 +16,10 @@
 - [ ] T011 Update CloudBrowser Documentation 240 and Jira with delivery evidence and remaining rollout requirements.
 Dependencies: T004 -> T005 -> T006/T007 -> T008 -> T009 -> T010 -> T011.
 Execution: sequential; research/review can run independently. Module PR is the first deliverable, followed by consumer rollout.
+
+## Apply-plan regression repair (2026-10-05)
+- [x] T012 Reproduce deferred caller identity with a mocked plan containing pending Aurora resources.
+- [x] T013 Remove only cw_alerts blanket DB dependencies and document alarm planning behavior.
+- [x] T014 Verify known query account IDs, existing storage tests, validate and formatting.
+- [ ] T015 Publish backport and regenerate immutable consumer adoption.
+- [ ] T016 Update CloudBrowser evidence, distinguishing code delivery from production recovery.

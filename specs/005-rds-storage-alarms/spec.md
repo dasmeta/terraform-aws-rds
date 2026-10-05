@@ -42,3 +42,10 @@ Standalone RDS users retain their existing allocated-storage-based alarm.
 
 ## Assumptions
 5 GiB is a conservative module baseline for provisioned Aurora, not a percentage or universal AWS recommendation. Operators tune it to workload/local capacity via the existing override. Scope is the shared root module and Sela adoption.
+
+## Apply-plan regression repair (2026-10-05)
+Continue the approved storage-alarm repair after an apply fails with unknown `metric_query.account_id` becoming known.
+- FR-008: Alarm account/region data must remain readable during planning while Aurora resources have pending changes.
+- FR-009: Preserve alarm keys, names, thresholds, actions, database configuration and provider bounds.
+- Acceptance: an offline mocked Aurora plan with pending database creates has all eight query account IDs known and unchanged at 000000000000; pre-fix fails this check.
+- Deployment remains subject to inspection of the fresh recovery plan.
