@@ -53,15 +53,6 @@ module "cw_alerts" {
         statistic = try(var.alarms.custom_values.connections.statistic, "avg")
       },
       {
-        name      = "DB: Low Free Storage Space on ${local.alarms_resource_label} ${var.identifier}"
-        source    = "AWS/RDS/FreeStorageSpace"
-        filters   = local.alarms_metric_filters
-        period    = try(var.alarms.custom_values.disk.period, "300")
-        threshold = try(var.alarms.custom_values.disk.threshold, local.disk_alarm_default_threshold_bytes) # 8% of storage in bytes
-        equation  = try(var.alarms.custom_values.disk.equation, "lte")
-        statistic = try(var.alarms.custom_values.disk.statistic, "avg")
-      },
-      {
         name      = "DB: High READ IOPS Utilization Alert on ${local.alarms_resource_label} ${var.identifier}"
         source    = "AWS/RDS/ReadIOPS"
         filters   = local.alarms_metric_filters
@@ -80,6 +71,7 @@ module "cw_alerts" {
         statistic = try(var.alarms.custom_values.iops.write.statistic, "avg")
       },
     ],
+    local.storage_alarm_enabled ? [local.storage_alarm] : [],
     # EBS IO balance applies to standalone RDS instance storage only.
     local.is_aurora ? [] : [
       {

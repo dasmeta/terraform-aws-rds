@@ -4,10 +4,10 @@
 - When creating rds with proxy, first create the rds only and then enable proxy and re-apply
 - When you have parameters that require instance restart(for example static params) make sure you did restart the instance
 - For Aurora PostgreSQL (`engine = "aurora-postgresql"`) with `enable_full_monitoring = true`, use module version **>= 1.11.2** (fixes empty `engine_family` plan error on versions before that; also omits unsupported `upgrade` log export on Aurora).
-- Aurora clusters: the module does not use `data.aws_db_instance` (cluster `identifier` is not a DB instance id). Disk alarm thresholds use `allocated_storage` when set, otherwise a safe default.
+- Aurora clusters: the module does not use `data.aws_db_instance` (cluster `identifier` is not a DB instance id). Provisioned Aurora storage alarms use `FreeLocalStorage`; see the storage alarm defaults below.
 - `slow_queries.enabled` defaults to `true`; set `slow_queries = { enabled = false }` if you do not want slow-query log exports and related alarms.
 - For production, override defaults `engine = "mysql"` and `engine_version = "5.7.26"` with values appropriate for your workload and region.
-- CloudWatch alarms filter on `DBInstanceIdentifier = var.identifier`. For Aurora, that is usually the cluster identifier; per-instance alarm dimensions may differ from standalone RDS.
+- CloudWatch alarms filter on `DBInstanceIdentifier = var.identifier` for standalone RDS and `DBClusterIdentifier = var.identifier` for Aurora.
 - When `create_db_parameter_group = true`, the parameter group **name** is `${identifier}-${parameter_group_family}` (e.g. `myapp-postgres17` for PostgreSQL 17), not `${identifier}-${engine}`. This allows major PostgreSQL upgrades (15 → 17) without `DBParameterGroupAlreadyExists`.
 
 ## module upgrade guide
@@ -23,6 +23,44 @@
   - NOTE, that in case you have auto scaled instances created in cluster and want to destroy cluster via terraform code you have to scale down and remove those instances manually before applying cluster destruct code
 - **Parameter group naming** (versions including family suffix in the name): first apply after upgrade may create a new parameter group (e.g. `*-postgres17`), attach it to the instance/cluster, and remove the old `*-postgres15` group. Expect parameter group replacement in plan, not RDS instance replacement.
 
+
+## Storage alarm defaults
+
+
+With `alarms.enabled = true`, standalone RDS uses `AWS/RDS/FreeStorageSpace`, `Average` over 300 seconds, and a threshold of 8% of the instance's current allocated storage. Provisioned Aurora uses `AWS/RDS/FreeLocalStorage`, `Minimum` over 300 seconds, and a 5 GiB threshold. The cluster dimension includes provisioned readers created by Aurora autoscaling; verify metric samples for the deployed cluster and its members during rollout.
+
+The Aurora threshold is a module baseline, not an AWS recommendation for every instance size. Tune it for instance capacity and workload using `alarms.custom_values.disk.threshold` (bytes). Existing `disk.period`, `disk.equation`, and `disk.statistic` overrides remain supported. `allocated_storage` does not set Aurora local-storage capacity.
+
+`FreeLocalStorage` is unavailable for Aurora Serverless. The module omits this alarm for Serverless v1 and clusters whose configured instances are all `db.serverless`. Mixed clusters monitor their provisioned members; Serverless members need monitoring appropriate to their metrics.
+
+Upgrading from the old Aurora `FreeStorageSpace` default changes the storage alarm's Terraform address because the shared monitoring module keys alarms by name and metric source. Its AWS alarm name stays the same. Before applying, migrate the old `module.cw_alerts[0].module.cloudwatch_metric-alarm` instance key to the corresponding `FreeLocalStorage` key using a consumer `moved` block or reviewed `terraform state mv`. Without this migration, concurrent creation and deletion of the same AWS alarm name can remove the updated alarm. The reviewed plan should update the existing alarm in place. Reject unrelated database settings changes; review any source/version provenance tag updates separately. Standalone alarm addresses and defaults remain unchanged.
+
+### Aurora upgrade state migration
+
+For a module call named `database` and identifier `example`, put this block in a
+consumer `moved.tf` before upgrading a provisioned Aurora cluster:
+
+```hcl
+moved {
+  from = module.database.module.cw_alerts[0].module.cloudwatch_metric-alarm["DB: Low Free Storage Space on Cluster example-AWS/RDS/FreeStorageSpace"]
+  to   = module.database.module.cw_alerts[0].module.cloudwatch_metric-alarm["DB: Low Free Storage Space on Cluster example-AWS/RDS/FreeLocalStorage"]
+}
+```
+
+Substitute the actual module path and cluster identifier. The module cannot ship
+this migration because the instance key contains the consumer's identifier.
+Keep the block for upgrades from older versions. Confirm the plan updates the
+existing storage alarm in place, preserving its AWS name and SNS actions, without
+a same-name delete/create. Verify live metric datapoints, alarm state and
+notification delivery after applying the reviewed plan. Rollback requires a
+reviewed reverse state migration and restores the old unsupported Aurora metric.
+
+The mocked regression suite requires Terraform 1.7 or newer and runs without AWS credentials:
+
+```sh
+terraform init -backend=false
+terraform test -filter=tests/storage-alarms.tftest.hcl
+```
 
 ## Slow-query count monitoring
 
