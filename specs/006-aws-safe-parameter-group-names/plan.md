@@ -36,6 +36,8 @@ Update the README upgrade note to say that PostgreSQL names include the paramete
 - Run `git diff --check`.
 - The repository's CI remains responsible for the module test and validation workflows; this task does not add or run tests.
 
+**Completed locally (2026-10-20)**: `terraform fmt -check locals.tf` and `git diff --check` passed. Automated Terraform tests were not run locally; PR CI is pending.
+
 ## Risks and Rollback
 
 The name expression changes from family-based to engine-based for non-PostgreSQL consumers. This deliberately preserves their pre-family-naming names and avoids a resource rename on upgrade. PostgreSQL behavior is unchanged. Rollback is a source revert; no state migration is expected.

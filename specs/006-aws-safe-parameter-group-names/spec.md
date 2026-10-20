@@ -2,7 +2,7 @@
 
 **Feature Branch**: `fix/mariadb-parameter-group-naming`
 **Created**: 2026-10-20
-**Status**: Ready for implementation
+**Status**: Implemented
 **Input**: Fix the upstream RDS module so the latest release can create valid MariaDB parameter groups without changing the existing TeamPlus parameter group name.
 
 ## Problem Statement
