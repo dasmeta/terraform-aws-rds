@@ -8,7 +8,7 @@
 - `slow_queries.enabled` defaults to `true`; set `slow_queries = { enabled = false }` if you do not want slow-query log exports and related alarms.
 - For production, override defaults `engine = "mysql"` and `engine_version = "5.7.26"` with values appropriate for your workload and region.
 - CloudWatch alarms filter on `DBInstanceIdentifier = var.identifier` for standalone RDS and `DBClusterIdentifier = var.identifier` for Aurora.
-- When `create_db_parameter_group = true`, the parameter group **name** is `${identifier}-${parameter_group_family}` (e.g. `myapp-postgres17` for PostgreSQL 17), not `${identifier}-${engine}`. This allows major PostgreSQL upgrades (15 → 17) without `DBParameterGroupAlreadyExists`.
+- When `create_db_parameter_group = true`, PostgreSQL parameter group **names** use `${identifier}-${parameter_group_family}` (e.g. `myapp-postgres17`) to allow major upgrades without `DBParameterGroupAlreadyExists`. Other engines use `${identifier}-${engine}` (e.g. `myapp-mariadb`); the AWS parameter group family remains engine/version-specific.
 
 ## module upgrade guide
 - from <1.4.0 versions to >=1.4.0 version upgrade
@@ -21,7 +21,7 @@
   - the aurora cluster auto-scaling related configs have been moved under aurora_configs.autoscaling object so make sure to update old aurora_configs.autoscaling_* options into corresponding aurora_configs.autoscaling.* ones
   - there is new options in aurora_configs.autoscaling to manage auto scaling related configs and also new ability to define scheduled autoscaling
   - NOTE, that in case you have auto scaled instances created in cluster and want to destroy cluster via terraform code you have to scale down and remove those instances manually before applying cluster destruct code
-- **Parameter group naming** (versions including family suffix in the name): first apply after upgrade may create a new parameter group (e.g. `*-postgres17`), attach it to the instance/cluster, and remove the old `*-postgres15` group. Expect parameter group replacement in plan, not RDS instance replacement.
+- **PostgreSQL parameter group naming**: a family change may create a new parameter group (e.g. `*-postgres17`), attach it to the instance/cluster, and remove the old `*-postgres15` group. Expect parameter group replacement in the plan, not RDS instance replacement. Other engines retain engine-based names across module upgrades.
 
 
 ## Storage alarm defaults
