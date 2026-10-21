@@ -19,11 +19,10 @@ The **family** changes on major upgrade (`postgres15` → `postgres17`), but the
 
 ## Solution
 
-For PostgreSQL engines, name parameter groups with the computed family suffix. Other engines keep the engine suffix so custom names stay AWS-compatible and existing names remain stable:
+Name parameter groups with the computed family suffix:
 
 ```hcl
-parameter_group_name_suffix = local.is_postgres_engine ? local.parameter_group_family : var.engine
-parameter_group_name = "${var.identifier}-${local.parameter_group_name_suffix}"
+parameter_group_name = "${var.identifier}-${local.parameter_group_family}"
 ```
 
 Examples:
@@ -33,7 +32,7 @@ Examples:
 | `postgres` | `15` | `postgres15` | `app-postgres15` |
 | `postgres` | `17` | `postgres17` | `app-postgres17` |
 | `aurora-postgresql` | `17.7` | `aurora-postgresql17` | `app-aurora-postgresql17` |
-| `mysql` | `8.0.35` | `mysql8.0.35` | `app-mysql` |
+| `mysql` | `8.0.35` | `mysql8.0.35` | `app-mysql8.0.35` |
 
 Aurora cluster parameter group remains `${local.parameter_group_name}-cluster` in `main.tf`.
 
@@ -60,7 +59,7 @@ Aurora cluster parameter group remains `${local.parameter_group_name}-cluster` i
 
 ## Requirements
 
-- **FR-201**: PostgreSQL and Aurora PostgreSQL parameter group names MUST use `local.parameter_group_family`; other engines MUST retain `var.engine` in the name.
+- **FR-201**: `local.parameter_group_name` MUST use `local.parameter_group_family`, not `var.engine` alone.
 - **FR-202**: `main.tf` references MUST remain `local.parameter_group_name` (no duplicate naming logic).
 - **FR-203**: README MUST note upgrade behavior and naming pattern.
 
