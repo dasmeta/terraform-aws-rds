@@ -9,6 +9,7 @@ Allow an existing Aurora cluster's instances and existing MySQL ingress rules to
 - Manage the `publicly_accessible = false` setting of each listed existing Aurora instance.
 - Manage only explicitly listed ingress rules on an existing security group; never create the group or infer additional rules.
 - Reject world-open IPv4 MySQL ingress in this private-access module.
+- Fail planning when the existing target security group has a public IPv4 or IPv6 ingress rule, including one added outside Terraform.
 - Protect adopted instances from accidental Terraform destruction.
 - Expose stable resource addresses for one-time imports of each instance and security-group rule.
 - Keep the module reusable without customer-specific IDs, secrets, or hostnames.

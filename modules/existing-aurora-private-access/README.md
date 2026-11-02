@@ -1,6 +1,6 @@
 # Existing Aurora private access
 
-Adopt existing Aurora cluster instances and existing ingress rules into Terraform without creating the cluster or security group. The module forces `publicly_accessible = false`, permits only listed TCP ingress sources, rejects `0.0.0.0/0`, and protects the instances from Terraform destruction.
+Adopt existing Aurora cluster instances and existing ingress rules into Terraform without creating the cluster or security group. The module forces `publicly_accessible = false`, permits only listed TCP ingress sources, rejects `0.0.0.0/0` in configuration, checks the live security group for public IPv4 or IPv6 ingress at plan time, and protects the instances from Terraform destruction. Existing tags remain outside this access-only module.
 
 Import **every** listed instance and rule into the destination workspace before applying. A plan before import would attempt to create resources that already exist. Keep the map keys stable after import.
 
