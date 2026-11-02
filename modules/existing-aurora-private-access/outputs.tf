@@ -1,3 +1,8 @@
+output "cluster_id" {
+  description = "Identifier of the adopted Aurora cluster."
+  value       = aws_rds_cluster.existing.id
+}
+
 output "instance_ids" {
   description = "Identifiers of adopted Aurora instances."
   value       = { for key, instance in aws_rds_cluster_instance.instances : key => instance.id }

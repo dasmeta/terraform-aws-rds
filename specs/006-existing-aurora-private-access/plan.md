@@ -2,15 +2,15 @@
 
 ## Design
 
-Create `modules/existing-aurora-private-access` as a narrow module with two resource maps: `aws_rds_cluster_instance.instances` and `aws_vpc_security_group_ingress_rule.rules`. Inputs describe existing instance identity/class/engine/tags, existing DB security group, port, and exactly the allowed rule sources. The module forces private instance networking and blocks `0.0.0.0/0` IPv4 ingress. It creates no cluster, subnet group, security group, or proxy. Resource addresses are stable map keys for import.
+Create `modules/existing-aurora-private-access` as a narrow adoption module with `aws_rds_cluster.existing`, `aws_rds_cluster_instance.instances`, and `aws_vpc_security_group_ingress_rule.rules`. Inputs record the live cluster engine, network, backups, maintenance, Performance Insights, and safety settings without a master password, plus instance identity/class and exactly allowed ingress sources. The module forces private instance networking and blocks public ingress. It creates no new cluster, subnet group, security group, or proxy after import. Resource addresses are stable for import.
 
 ## Boundaries
 
-The consumer must import the existing resources before apply; otherwise Terraform would attempt creation and fail or duplicate rules. Customer IDs live only in the Buycycle YAML. Pin the module by immutable Git commit until a registry release is available. Do not apply production changes from this PR.
+The consumer must import all seven existing resources before apply; otherwise Terraform would attempt creation and fail or duplicate rules. Customer IDs live only in the Buycycle YAML. The consumer uses a registry version after the module release. Do not apply production changes from this PR.
 
 ## Validation
 
-Run `terraform fmt -check`, `terraform init -backend=false`, and `terraform validate` on an isolated test root. Validate the rendered Buycycle root and review an import plan when AWS credentials are restored. Terraform Cloud currently has expired AWS credentials, so a remote plan may remain blocked.
+Run `terraform fmt -check`, `terraform init -backend=false`, and `terraform validate` on an isolated test root. Validate the rendered Buycycle root. A read-only local import plan against live AWS with the Buycycle profile produced seven imports, zero additions, zero changes, and zero destructions. Terraform Cloud's workspace credential remains expired, so remote validation is still blocked.
 
 ## Rollback
 

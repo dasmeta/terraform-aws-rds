@@ -1,11 +1,36 @@
+variable "cluster" {
+  description = "Existing Aurora cluster to adopt without changing its current production settings."
+  type = object({
+    identifier                            = string                    # Existing cluster identifier used as the Terraform import ID.
+    engine                                = string                    # Current Aurora engine, such as aurora-mysql.
+    engine_version                        = string                    # Current engine version retained during adoption.
+    database_name                         = string                    # Existing default database name.
+    db_subnet_group_name                  = string                    # Existing DB subnet group name.
+    db_cluster_parameter_group_name       = string                    # Existing DB cluster parameter group name.
+    backup_retention_period               = number                    # Current number of retained backup days.
+    preferred_backup_window               = string                    # Current daily UTC backup window.
+    preferred_maintenance_window          = string                    # Current weekly UTC maintenance window.
+    storage_encrypted                     = bool                      # Current at-rest encryption setting; never change during adoption.
+    deletion_protection                   = bool                      # Current AWS deletion-protection setting; Terraform prevent_destroy remains enabled.
+    enable_http_endpoint                  = bool                      # Current RDS Data API endpoint setting.
+    skip_final_snapshot                   = bool                      # Current Terraform final-snapshot behavior, protected by prevent_destroy.
+    performance_insights_enabled          = bool                      # Current cluster Performance Insights setting.
+    performance_insights_kms_key_id       = string                    # Current Performance Insights KMS key ARN.
+    performance_insights_retention_period = number                    # Current Performance Insights retention period in days.
+    iam_database_authentication_enabled   = bool                      # Current IAM database authentication setting.
+    copy_tags_to_snapshot                 = bool                      # Current snapshot-tag copy setting.
+    port                                  = number                    # Existing database listener port.
+    tags                                  = optional(map(string), {}) # Existing cluster tags, retained without changing them.
+  })
+}
+
 variable "instances" {
   description = "Existing Aurora cluster instances to adopt and keep private. Map keys are stable Terraform import addresses."
   type = map(object({
-    identifier         = string                    # Existing DB instance identifier to import.
-    cluster_identifier = string                    # Existing Aurora cluster identifier; this module does not create it.
-    instance_class     = string                    # Current DB instance class, retained during adoption.
-    engine             = string                    # Existing Aurora engine, such as aurora-mysql.
-    tags               = optional(map(string), {}) # Existing instance tags to preserve on import.
+    identifier     = string                    # Existing DB instance identifier to import.
+    instance_class = string                    # Current DB instance class, retained during adoption.
+    engine         = string                    # Existing Aurora engine, such as aurora-mysql.
+    tags           = optional(map(string), {}) # Existing instance tags to preserve on import.
   }))
 }
 
