@@ -20,7 +20,7 @@
 
 ## Phase 4: Polish
 
-- [ ] T006 Update the production source pin in `infrastructure/1-environments/prod/aurora-postgres.yaml` to a published revision containing T003.
+- [x] T006 Update the production source pin in `infrastructure/1-environments/prod/aurora-postgres.yaml` to a published revision containing T003.
 - [ ] T007 Compare November 5 reader and writer series and review a production plan when credentials are available.
 
 ## Dependencies
