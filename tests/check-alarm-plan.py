@@ -20,6 +20,13 @@ def check_plan(plan, expected_alarms):
         assert queries and all(
             query.get("account_id") == "000000000000" for query in queries
         ), f"Metric account_id must be known during planning: {alarm['address']}"
+        if "High READ IOPS" in alarm["address"]:
+            metrics = [metric for query in queries for metric in query.get("metric", [])]
+            assert len(metrics) == 1
+            assert metrics[0]["dimensions"] == {
+                "DBClusterIdentifier": "example",
+                "Role": "WRITER",
+            }, "Aurora read IOPS must follow the writer and exclude readers"
 
 
 def main():

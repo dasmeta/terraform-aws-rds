@@ -55,7 +55,7 @@ module "cw_alerts" {
       {
         name      = "DB: High READ IOPS Utilization Alert on ${local.alarms_resource_label} ${var.identifier}"
         source    = "AWS/RDS/ReadIOPS"
-        filters   = local.alarms_metric_filters
+        filters   = local.is_aurora ? { DBClusterIdentifier = var.identifier, Role = "WRITER" } : local.alarms_metric_filters
         period    = try(var.alarms.custom_values.iops.read.period, "900")
         threshold = try(var.alarms.custom_values.iops.read.threshold, "5000") # IOPS
         equation  = try(var.alarms.custom_values.iops.read.equation, "gte")
